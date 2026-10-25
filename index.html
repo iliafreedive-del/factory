@@ -2,7 +2,9 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2b2f6b">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Завод прицепов</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Russo+One&display=swap">
@@ -14,7 +16,7 @@
   --f-disp:"Russo One","Rubik",system-ui,sans-serif; --f-body:"Rubik",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:light;
 }
-html,body{height:100%;overflow:hidden;margin:0}
+html,body{height:100%;overflow:hidden;margin:0;overscroll-behavior:none}
 [hidden]{display:none!important}
 body{background:var(--sky);color:var(--cardink);font-family:var(--f-body);-webkit-user-select:none;user-select:none}
 #view{position:fixed;inset:0;touch-action:none}
@@ -79,14 +81,23 @@ button:focus-visible{outline:3px solid #6c7cff;outline-offset:2px}
 .x{position:absolute;right:10px;top:10px;width:28px;height:28px;border:0;border-radius:7px;background:#f0eff8;color:var(--panel);font-size:16px}
 
 .hint{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:rgba(36,38,74,.92);color:#fff;font-size:12.5px;padding:8px 12px;border-radius:8px;max-width:min(520px,calc(100vw - 300px));text-align:center;line-height:1.4;pointer-events:none;transition:opacity .4s}
-@media (max-width:760px){
+@media (max-width:760px),(pointer:coarse) and (max-height:560px){
   .stats{display:none}
-  .hint{display:none}
+  .hint{max-width:calc(100vw - 32px);bottom:auto;top:calc(64px + env(safe-area-inset-top,0px));font-size:12px}
+  .brand h1{font-size:15px}.brand small{font-size:10px}.clock{font-size:15px;padding:7px 10px}
   .info{left:12px;right:12px;top:auto;bottom:calc(12px + env(safe-area-inset-bottom,0px));width:auto;max-width:none;max-height:45%}
-  .tb{width:42px;height:42px}
+  .tb{width:40px;height:40px}
+  .tools{gap:6px;top:auto;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:none}
   .tb em{display:none}
   .steps{width:210px}
 }
+@media (max-height:560px){
+  .tools{display:grid;grid-template-columns:repeat(2,42px);gap:6px}
+  .tools .tb{width:42px;height:42px}
+  .steps{max-height:calc(100% - 90px);overflow:auto}
+  .info{max-height:60%}
+}
+@media (pointer:coarse){.lb.r,.lb.z{font-size:11px}}
 @media (prefers-reduced-motion:reduce){.lb,.hint{transition:none}}
 </style>
 </head>
@@ -147,8 +158,11 @@ let seed=11;const rnd=()=>{seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15
 const pick=a=>a[Math.floor(rnd()*a.length)];
 
 /* Схема (jpg) в пикселях → метры. 1 px ≈ 0.25 м */
-const S=0.25,OX=400,OZ=270;
-const X=p=>(p-OX)*S, Z=p=>(p-OZ)*S;
+const S=0.25,OX=450,OZ=290;
+/* Разрывы между зданиями (px схемы): раздвигаем корпуса, чтобы было место для маршрутов */
+const GX=[[129,52],[356,56],[625,24]],GZ=[[257,56]];
+const gap=(p,G)=>{let e=0;for(const [t,g] of G)if(p>t)e+=g;return e};
+const X=p=>(p+gap(p,GX)-OX)*S, Z=p=>(p+gap(p,GZ)-OZ)*S;
 function R(a,b,c,d){const x1=X(a),x2=X(c),z1=Z(b),z2=Z(d);return{x1,x2,z1,z2,x:(x1+x2)/2,z:(z1+z2)/2,w:x2-x1,d:z2-z1}}
 const P=(a,b)=>new V3(X(a),0,Z(b));
 
@@ -194,7 +208,8 @@ class Batch{
 /* ---------- сцена ---------- */
 const view=$('#view');
 const renderer=new THREE.WebGLRenderer({antialias:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const MOBILE=matchMedia('(pointer:coarse)').matches||innerWidth<760;
+renderer.setPixelRatio(Math.min(devicePixelRatio,MOBILE?1.5:2));
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 view.appendChild(renderer.domElement);
 const scene=new THREE.Scene();scene.background=new THREE.Color(0xdfe7e2);
@@ -203,7 +218,7 @@ scene.add(new THREE.HemisphereLight(0xffffff,0x9a8f78,0.72));
 const sun=new THREE.DirectionalLight(0xfff6e6,0.62);
 sun.position.set(-70,150,110);sun.castShadow=true;
 Object.assign(sun.shadow.camera,{left:-130,right:130,top:110,bottom:-110,near:10,far:500});
-sun.shadow.mapSize.set(4096,4096);sun.shadow.bias=-0.0006;scene.add(sun);scene.add(sun.target);
+sun.shadow.mapSize.set(MOBILE?2048:4096,MOBILE?2048:4096);sun.shadow.bias=-0.0006;scene.add(sun);scene.add(sun.target);
 
 const world=new Batch();
 const anims=[];          // функции анимации (dt,t)
@@ -758,14 +773,14 @@ function mkLabel(kind,text,step,id){const el=document.createElement('div');el.cl
 /* ---------- камера ---------- */
 const camS={tx:X(300),tz:Z(300),az:0.62,zoom:1,el:0.66};
 const camT={...camS};
-const home={tx:X(390),tz:Z(265),az:0.62,zoom:1};
+const home={tx:TER.x+8,tz:TER.z+4,az:0.62,zoom:innerWidth<innerHeight?0.68:0.85};
 Object.assign(camS,home);Object.assign(camT,home);
 function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h);cam.userData.aspect=w/h;}
 addEventListener('resize',resize);resize();
-function viewH(){return (innerWidth<760?150:118)}
+function viewH(){const a=innerWidth/innerHeight;return a<1?Math.max(150,120/a):118}
 function applyCam(){const a=cam.userData.aspect,H=viewH()/2;cam.left=-H*a;cam.right=H*a;cam.top=H;cam.bottom=-H;cam.zoom=camS.zoom;
  const d=400,c=Math.cos(camS.el);cam.position.set(camS.tx+Math.sin(camS.az)*c*d,Math.sin(camS.el)*d,camS.tz+Math.cos(camS.az)*c*d);cam.lookAt(camS.tx,0,camS.tz);cam.updateProjectionMatrix()}
-function clampT(){camT.tx=Math.max(TER.x1-20,Math.min(TER.x2+20,camT.tx));camT.tz=Math.max(TER.z1-20,Math.min(TER.z2+20,camT.tz));camT.zoom=Math.max(0.7,Math.min(8,camT.zoom))}
+function clampT(){camT.tx=Math.max(TER.x1-20,Math.min(TER.x2+20,camT.tx));camT.tz=Math.max(TER.z1-20,Math.min(TER.z2+20,camT.tz));camT.zoom=Math.max(0.55,Math.min(8,camT.zoom))}
 function panBy(dx,dy){const wpp=viewH()/camS.zoom/innerHeight,az=camS.az;
  const rx=Math.cos(az),rz=-Math.sin(az),fx=-Math.sin(az),fz=-Math.cos(az),k=1/Math.sin(camS.el);
  camT.tx+=-rx*dx*wpp+fx*dy*wpp*k;camT.tz+=-rz*dx*wpp+fz*dy*wpp*k;clampT();camS.tx=camT.tx;camS.tz=camT.tz}
@@ -778,10 +793,11 @@ const cv=renderer.domElement;const ptrs=new Map();let down=null,moved=0,pinch=nu
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;rot=e.button===2||e.shiftKey;
  down={x:e.clientX,y:e.clientY};cv.classList.add('drag');hideHint();
- if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),mx:(a.x+b.x)/2,my:(a.y+b.y)/2}}});
+ if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),mx:(a.x+b.x)/2,my:(a.y+b.y)/2,ang:Math.atan2(b.y-a.y,b.x-a.x)}}});
 cv.addEventListener('pointermove',e=>{const p=ptrs.get(e.pointerId);if(!p)return;const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;moved+=Math.abs(dx)+Math.abs(dy);
  if(ptrs.size===2&&pinch){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y),mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
-  zoomAt(d/pinch.d,mx,my);panBy(mx-pinch.mx,my-pinch.my);pinch={d,mx,my};return}
+  const ang=Math.atan2(b.y-a.y,b.x-a.x);let da=ang-pinch.ang;da=Math.atan2(Math.sin(da),Math.cos(da));
+  zoomAt(d/pinch.d,mx,my);panBy(mx-pinch.mx,my-pinch.my);if(Math.abs(da)<0.3){camT.az+=da;camS.az=camT.az}pinch={d,mx,my,ang};moved+=99;return}
  if(rot){camT.az-=dx*0.006;camS.az=camT.az;return}
  panBy(dx,dy)});
 const up=e=>{ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(ptrs.size===0){cv.classList.remove('drag');if(moved<6&&down&&e.type==='pointerup')pickAt(e.clientX,e.clientY)}};
@@ -803,7 +819,8 @@ $('#roof').onclick=()=>{roofMode=(roofMode+1)%3;$('#roofTip').textContent=roofNa
 $('#flow').onclick=()=>{flowGroup.visible=!flowGroup.visible;$('#flow').classList.toggle('on',flowGroup.visible)};
 let showLabels=true;$('#lbl').onclick=()=>{showLabels=!showLabels;$('#lbl').classList.toggle('on',showLabels);labelLayer.style.display=showLabels?'':'none'};
 $('#stepsMin').onclick=()=>{$('#steps').classList.toggle('min');$('#stepsMin').textContent=$('#steps').classList.contains('min')?'▴':'▾'};
-let hintT=null;function hideHint(){if(hintT)return;hintT=setTimeout(()=>{$('#hint').style.opacity=0},2500)}
+let hintT=null;if(MOBILE)$('#hint').textContent='Один палец двигает карту, двумя пальцами можно приблизить и повернуть. Нажми на цех, зону или человека.';
+function hideHint(){if(hintT)return;hintT=setTimeout(()=>{$('#hint').style.opacity=0},2500)}
 
 /* ---------- клики, карточки ---------- */
 function pickAt(cx,cy){const wk=workerAt(cx,cy);if(wk){showTip(wk,cx,cy);return}tip.hidden=true;ndc.set(cx/innerWidth*2-1,-(cy/innerHeight)*2+1);ray.setFromCamera(ndc,cam);
@@ -824,7 +841,7 @@ const STEPS=[['cut','1','Приёмка и резка'],['weld','2','Сварк�
 const ZSTEPS=[['blackFrames','·','Чёрные рамы ждут цинк',1],['zincLoad','⇄','Кран: в цинк и обратно',1],['black','·','Чёрный цех',1]];
 function fillSteps(list,arr){for(const [id,n,t,z] of arr){const li=document.createElement('li');if(z)li.className='z';const b=document.createElement('button');b.innerHTML=`<b>${n}</b>${t}`;b.onclick=()=>focusRoom(id,z?2.6:3.4);li.appendChild(b);list.appendChild(li)}}
 fillSteps($('#stepList'),STEPS);fillSteps($('#zincList'),ZSTEPS);
-if(innerWidth<760){$('#steps').classList.add('min');$('#stepsMin').textContent='▴'}
+if(MOBILE||innerWidth<760){$('#steps').classList.add('min');$('#stepsMin').textContent='▴'}
 
 world.build(scene);
 /* ---------- цикл ---------- */
