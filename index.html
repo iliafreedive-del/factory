@@ -76,6 +76,7 @@ button:focus-visible{outline:3px solid #6c7cff;outline-offset:2px}
 .info .tag{display:inline-block;background:var(--zinc);color:#24264a;font:700 11px/1 var(--f-body);padding:4px 6px;border-radius:4px;letter-spacing:.03em}
 .info h3{margin:8px 30px 6px 0;font:400 18px/1.2 var(--f-disp);color:var(--panel);text-wrap:balance}
 .info p{margin:0 0 10px;font-size:13.5px;line-height:1.45;color:#3a3b5c}
+.info p.src{font-size:12px;color:#6a6c8c}
 .info h4{margin:12px 0 6px;font:700 11px/1 var(--f-body);color:#e2564b;text-transform:uppercase;letter-spacing:.06em}
 .info ul{margin:0;padding-left:18px;font-size:13px;line-height:1.45;color:#3a3b5c;display:flex;flex-direction:column;gap:4px}
 .x{position:absolute;right:10px;top:10px;width:28px;height:28px;border:0;border-radius:7px;background:#f0eff8;color:var(--panel);font-size:16px}
@@ -97,6 +98,18 @@ button:focus-visible{outline:3px solid #6c7cff;outline-offset:2px}
   .steps{max-height:calc(100% - 90px);overflow:auto}
   .info{max-height:60%}
 }
+
+.photo{position:fixed;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));width:min(400px,calc(100vw - 84px));background:#fff;border-radius:10px;box-shadow:0 3px 0 #b9b8d6,0 8px 24px rgba(30,30,80,.18);padding:9px;z-index:4}
+.photo h3{margin:0 0 6px;font:400 14px/1.2 var(--f-disp);color:var(--panel)}
+.photo p{margin:0 0 6px;font-size:11.5px;color:#7a7a96}
+.photo img{display:block;width:100%;border-radius:6px}
+.photo nav{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+.photo nav button{border:0;border-radius:6px;background:#f0eff8;color:var(--panel);font:500 12.5px/1 var(--f-body);padding:8px 10px;cursor:pointer}
+.photo nav button.on{background:var(--zinc)}
+.phover{position:fixed;left:0;top:50%;width:100vw;transform:translateY(-50%);pointer-events:none;z-index:2;opacity:.5}
+.compass{position:fixed;left:max(12px,env(safe-area-inset-left,0px));top:calc(66px + env(safe-area-inset-top,0px));width:44px;height:44px;border-radius:50%;background:#fff;box-shadow:0 3px 0 #b9b8d6;display:grid;place-items:center;pointer-events:none}
+.compass i{position:absolute;left:50%;top:50%;width:0;height:0;margin:-17px 0 0 -6px;border:6px solid transparent;border-bottom:17px solid #e2564b;border-top:0;transform-origin:6px 17px}
+.compass b{position:absolute;font:700 10px/1 var(--f-body);color:var(--panel)}
 @media (pointer:coarse){.lb.r,.lb.z{font-size:11px}}
 @media (prefers-reduced-motion:reduce){.lb,.hint{transition:none}}
 </style>
@@ -106,6 +119,7 @@ button:focus-visible{outline:3px solid #6c7cff;outline-offset:2px}
 <div id="view"></div>
 <div id="labels"></div>
 <div class="tip" id="tip" hidden></div>
+<div class="compass" id="compass" aria-hidden="true"><i id="needle"></i><b id="nLetter">С</b></div>
 
 <header class="hud">
   <div class="brand"><h1>Завод прицепов</h1><small>Этап 1 · карта и цеха</small></div>
@@ -126,6 +140,9 @@ button:focus-visible{outline:3px solid #6c7cff;outline-offset:2px}
   <button class="tb" id="roof" aria-label="Крыши"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M6 10v9h12v-9"/></svg><em id="roofTip">Крыши: авто</em></button>
   <button class="tb on" id="flow" aria-label="Маршрут рамы"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 18c4 0 4-12 8-12s4 12 8 12"/><circle cx="4" cy="18" r="1.6" fill="currentColor"/><circle cx="20" cy="18" r="1.6" fill="currentColor"/></svg><em>Маршрут рамы</em></button>
   <button class="tb on" id="lbl" aria-label="Подписи">Aa<em>Подписи</em></button>
+  <button class="tb" id="top" aria-label="Вид сверху, как на 2ГИС"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><circle cx="12" cy="12" r="4"/></svg><em>Вид сверху, как на 2ГИС</em></button>
+  <button class="tb" id="gv" aria-label="Вид с земли, как на фото"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l2-3h4l2 3"/><circle cx="12" cy="13.5" r="3.5"/></svg><em>Вид с земли, как на фото</em></button>
+  <button class="tb" id="ref" aria-label="Подложка 2ГИС" hidden>2Г<em id="refTip">Подложка 2ГИС</em></button>
   <button class="tb" id="home" aria-label="Вся территория"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 4v16M4 9h16"/></svg><em>Вся территория</em></button>
 </nav>
 
@@ -137,11 +154,18 @@ button:focus-visible{outline:3px solid #6c7cff;outline-offset:2px}
   <div class="legend"><span style="--c:#c9773a">покраска</span><span style="--c:#f2c230">цинк</span></div>
 </section>
 
+<img class="phover" id="phOver" alt="" hidden>
+<aside class="photo" id="photo" hidden>
+  <h3 id="phTitle"></h3><p id="phMeta"></p><img id="phImg" alt="" hidden>
+  <nav><button id="phPrev">← Пред.</button><button id="phNext">След. →</button><button id="phOv">Наложить фото</button><button id="phX">Выйти</button></nav>
+</aside>
+
 <aside class="info" id="info" hidden>
   <button class="x" id="infoX" aria-label="Закрыть">✕</button>
   <span class="tag" id="iTag"></span>
   <h3 id="iTitle"></h3>
   <p id="iText"></p>
+  <p id="iSrc" class="src" hidden></p>
   <h4 id="iAskH">Что хочу у вас уточнить</h4>
   <ul id="iAsk"></ul>
 </aside>
@@ -168,6 +192,9 @@ const P=(a,b)=>new V3(X(a),0,Z(b));
 /* метры от северо-западного угла красного склада комплектующих (по линейке 2ГИС) */
 const MX=m=>213+m/S, MZ=m=>205+m/S, WX=m=>X(213)+m, WZ=m=>Z(205)+m, PM=(x,z)=>new V3(WX(x),0,WZ(z));
 const mp=a=>[MX(a[0]),MZ(a[1]),MX(a[2]),MZ(a[3])], RM=(a,b,c,d)=>R(...mp([a,b,c,d]));
+/* План завода — единственный источник геометрии (plan/plan.json, вставляется tools/build.py) */
+/*PLAN*/const PLAN={"about":"Завод прицепов «Аляска», Красноярск, ул. Айвазовского 6. 1 ед. = 1 м.","frame":{"origin":"СЗ угол склада комплектующих","origin_latlon":[56.026558,93.054827],"x_bearing_deg":74.97,"z_bearing_deg":164.97,"north_xz":[0.2593,-0.9658],"m_per_px_2gis":0.4166,"px0":[170,166]},"sources":["2ГИС, скриншот всего участка с пометками Ильи (26.10)","2ГИС, линейка: склад 49×14, ЛГЦ 38×12, разрыв 25 м","OpenStreetMap через Overture 2026-10-21 — проверка","подписи Ильи на скриншотах 2ГИС","337 фото и видео-обход 26–27.10"],"buildings":{"b3":{"name":"Склад комплектующих","owner":"наше","src":"линейка 2ГИС 49×14 м; на скриншоте 50×14,6 м","r":[0,0,49,14.3],"h":6.5},"b4":{"name":"ЛГЦ","owner":"наше","src":"линейка 2ГИС 38×12 м, разрыв со складом 25 м; север по скриншоту","r":[74,-1.3,112,10.8],"h":6},"b5":{"name":"Строящийся цех","owner":"наше","src":"на картах нет; по фото рядом с ЛГЦ, такой же ангар; длина не подтверждена; стена ≈5 м по фото 1568","r":[78,14.5,112,26.5],"h":5},"b1":{"name":"Цех 1 · корпус 6/1","owner":"наше","src":"скриншот 2ГИС, восточный фасад без 3D-грани","r":[-61.7,14.6,-38.3,76.7],"h":9},"b1c":{"name":"Склад запчастей для сварки из ЛГЦ","owner":"наше","src":"северная пристройка 6/1 на 2ГИС","r":[-38.3,16.2,-28.7,21.7],"h":5},"zap":{"name":"Склад запчастей","owner":"наше","src":"план Excel: нижняя полоса E38:I38 под «Батонами», вдоль южного забора; фото 1746; длина и место примерные","r":[-28,83.5,8,87.2],"h":3.5},"canopy1":{"name":"Навес и контейнеры 1–4","owner":"наше","src":"фото 1709 и 1746 у офиса 1; место примерное","r":[-50,78.2,-41,86.8],"h":3.7},"b1a":{"name":"Склад осей, трапов и крупного","owner":"наше","src":"средняя пристройка 6/1 на 2ГИС; по словам Ильи впритык к заготовке и сварке рамы","r":[-38.3,32.9,-28.7,60.8],"h":6},"b2a":{"name":"Корпус 6 ст1 · песко","owner":"наше","src":"западный блок 6 ст1, северная часть","r":[-24.2,22.5,-8.3,34.6],"h":8},"b2n":{"name":"Корпус 6 ст1 · маляр","owner":"наше","src":"западный блок 6 ст1, южная часть","r":[-24.2,34.6,-13.7,44.6],"h":8},"b2t":{"name":"Корпус 6 ст1 · тента","owner":"наше","src":"узкое северное крыло (подпись Ильи «тента»)","r":[-8.3,18.7,-2.5,34.6],"h":8},"b2b":{"name":"Корпус 6 ст1","owner":"наше","src":"южная длинная часть; маляр | цех 2 | офис по подписям Ильи","r":[-13.7,34.6,48.7,47.9],"h":8},"b7":{"name":"Чёрный цех · корпус 6/2","owner":"наше","src":"скриншот 2ГИС, повёрнут на 6° к остальным; OSM 110×91 м","h":8,"r":[196.7,49.7,305.7,147.6],"rot":6.1},"b6":{"name":"Не наше · красный ангар","owner":"не наше","src":"2ГИС 40 м в длину; глубина 12 м по OSM; красный ангар с киоском «Автомасла» по видео 2:21 и фото 1561","r":[71.7,33.0,111.6,45.8],"h":4.5},"gar":{"name":"Гаражи","owner":"не наше?","src":"длинная полоса на 2ГИС у южной границы, на фото ряд гаражей у серого здания","r":[59.2,77.1,131.2,84.2],"h":3},"k6":{"name":"Корпус 6","owner":"?","src":"2ГИС; на спутнике тут Рефстройтрейд","h":7,"r":[213.4,154.3,265.1,174.4],"rot":6.1},"q1":{"name":"Здание без подписи","owner":"?","src":"2ГИС, восточнее 6/2, внутри обведённого контура","h":4,"r":[328.6,90.9,338.8,105.8],"rot":11.9},"q2":{"name":"Здание без подписи","owner":"?","src":"2ГИС, восточнее 6/2, внутри обведённого контура","h":4,"r":[325.3,115.1,337.3,133.0],"rot":5.7}},"fence":[[-59.2,-60.0],[180.0,-32.9],[332.4,-19.6],[322.9,75.8],[325.8,83.7],[339.1,85.4],[379.5,130.8],[264.5,198.7],[175.8,198.3],[178.3,112.9],[167.1,99.2],[166.6,87.1],[-52.1,87.5],[-52.1,77.1],[-61.7,76.7],[-61.7,14.6],[-54.2,14.2],[-59.2,-60.0]],"containers":[146.2,-17.9,170.8,55.0],"tower_crane_rail":[[172.1,-22.1],[167.5,48.7]],"kpp":[148.3,75.0,157.5,85.8],"viewpoints":[{"photo":"IMG_1709","time":"26.10 13:06","f35":24,"title":"Кирпичная арка офиса 1","pos":[-32.5,68.5],"look":[-40,72.5]},{"photo":"IMG_1746","time":"26.10 13:12","f35":14,"title":"Двор у офиса 1: навес, контейнеры","pos":[-14,80.8],"look":[-38,80]},{"photo":"IMG_1751","time":"26.10 13:12","f35":14,"title":"Вдоль южного фасада 6 ст1, флаги","pos":[-18,57],"look":[40,56]},{"photo":"IMG_1565","time":"26.10 12:36","f35":24,"title":"Ель у восточного торца 6 ст1","pos":[66,22],"look":[45,36]},{"photo":"IMG_1561","time":"26.10 12:36","f35":24,"title":"Новый цех и красное «не наше» с «Автомаслами»","pos":[54,29],"look":[90,36]},{"photo":"IMG_1568","time":"26.10 12:36","f35":24,"title":"Секционные ворота нового цеха","pos":[123,20.5],"look":[112,20.5]},{"photo":"IMG_1587","time":"26.10 12:46","f35":24,"title":"ЖД-тупик и козловой кран","pos":[10,-26.3],"look":[60,-26.3]}],"underlay_2gis":{"file":"3f8a4484 (не в репозитории)","px":[1099,729],"r":[-70.8,-69.2,387.0,234.5]}};/*/PLAN*/
+const PB=id=>PLAN.buildings[id], PR=id=>PLAN.buildings[id].r;
 
 const C={ground:0xe6e0cc,grass:0xb5cf84,grass2:0x9fc070,concrete:0xd4cdbd,asphalt:0x8e8a86,line:0xf7f3e8,yellow:0xf2c230,
  black:0x2c2d30,zinc:0xb9c2c9,paint:0x47566a,tire:0x232323,steel:0x7c848c,wood:0xb98b55,box:0xc9a46b,rackU:0xe07b2a,rackB:0x2f5fa8,
@@ -239,12 +266,11 @@ function border(b,r,c=C.line,t=0.22,y=0.03){
 
 /* земля, территория, дороги — по 2ГИС */
 world.box(1600,0.1,1600,C.ground,0,-0.16,0);
-const TB=RM(-80,-80,380,215);
-const W1=[[-61.5,-62.1],[180.5,-30.5],[167.4,103.7],[133.2,102.6],[133.2,80],[-48.5,82.6],[-48.5,75.6],[-40.5,75.6],[-40.5,12.6],[-61.5,12.6],[-61.5,-62.1]];
-const W2=[[177.6,-29.4],[330.5,-15],[320,78],[336.7,88.3],[376,133.8],[262.3,199.9],[173.5,199.9],[165.2,100.7],[177.6,-29.4]];
+const TB=RM(-80,-80,390,215);
+const FENCE=PLAN.fence;   // контур, который вы обвели на 2ГИС (стены цеха 1 служат забором)
 function polyFill(poly,col,y){const sh=new THREE.Shape();poly.forEach(([x,z],i)=>i?sh.lineTo(WX(x),-WZ(z)):sh.moveTo(WX(x),-WZ(z)));
  const g=new THREE.ShapeGeometry(sh);g.rotateX(-Math.PI/2);const m=new THREE.Mesh(g,new THREE.MeshLambertMaterial({color:col}));m.position.y=y;m.receiveShadow=true;scene.add(m)}
-polyFill(W1,C.concrete,-0.03);polyFill([[-61.5,12.6],[-40.5,12.6],[-40.5,82.6],[-61.5,82.6]],C.concrete,-0.031);polyFill(W2,C.concrete,-0.03);
+polyFill(FENCE,C.concrete,-0.03);
 for(let i=0;i<26;i++){const x=(rnd()-.5)*800,z=(rnd()-.5)*600;if(x>WX(-70)&&x<WX(380)&&z>WZ(-70)&&z<WZ(205))continue;world.box(8+rnd()*30,0.02,6+rnd()*20,rnd()<.5?C.grass:C.grass2,x,-0.1,z,rnd()*3)}
 const ROADS=[];
 function road(pts,w,col=C.asphalt,y=0){ROADS.push([pts,w]);for(let i=0;i<pts.length-1;i++){const [x1,z1]=pts[i],[x2,z2]=pts[i+1],L=Math.hypot(x2-x1,z2-z1);
@@ -254,8 +280,8 @@ road([[-26,-42],[139,-42]],5);                                                  
 road([[-15,-42],[-15,10],[-12,14.5],[-9.6,15],[0,15.5],[5.6,19.5],[10.4,24],[30,25],[57.6,25.1]],5); // кривой проезд у 6 ст1
 road([[57.6,9],[57.6,25.1]],5);                                                    // между складом и ЛГЦ
 road([[57.6,25.1],[62.4,26.7],[63.2,33.9],[64,65.9]],5);
-road([[-29,20],[-29,65.9]],5);                                                     // между цехом 1 и 6 ст1
-road([[-29,65.9],[128,65.9]],6);                                                   // южный проезд
+road([[-26.4,20],[-26.4,65.9]],3.5);                                               // узкий проезд между цехом 1 и 6 ст1
+road([[-26.4,65.9],[128,65.9]],6);                                                   // южный проезд
 road([[126.4,65.9],[125.6,33.9],[128,17.9],[134.4,-6.1],[139,-16],[139,-42]],5);   // восточный проезд
 road([[128,65.9],[140,72],[150,82],[158,100],[165,150],[170,201]],7);              // выезд через КПП
 road([[158,100],[190,100]],6);                                                     // к Чёрному цеху
@@ -263,11 +289,12 @@ road([[-140,203],[262,203],[392,128]],9,0x7d7a77,-0.01);                        
 const nearRoad=(x,z,m=1)=>ROADS.some(([p,w])=>{for(let i=0;i<p.length-1;i++){const [ax,az]=p[i],[bx,bz]=p[i+1],dx=bx-ax,dz=bz-az,L2=dx*dx+dz*dz||1,t=Math.max(0,Math.min(1,((x-ax)*dx+(z-az)*dz)/L2));if(Math.hypot(x-ax-t*dx,z-az-t*dz)<w/2+m)return true}return false});
 
 // лесополоса и ЖД вдоль северной границы (идут наискось, как на 2ГИС)
-const NB=x=>-62.1+(x+61.5)*0.1333, railZ=x=>NB(x)-16, railAng=Math.atan(0.1333);
+const nbK=(FENCE[1][1]-FENCE[0][1])/(FENCE[1][0]-FENCE[0][0]),nbK2=(FENCE[2][1]-FENCE[1][1])/(FENCE[2][0]-FENCE[1][0]),
+ NB=x=>x<FENCE[1][0]?FENCE[0][1]+(x-FENCE[0][0])*nbK:FENCE[1][1]+(x-FENCE[1][0])*nbK2, railZ=x=>FENCE[0][1]+(x-FENCE[0][0])*nbK-16, railAng=Math.atan(nbK);
 function tree(b,x,z,s=1){b.cyl(0.18*s,1.4*s,C.trunk,x,0.7*s,z,0,0,0,G.cyl6);
  const c=pick([0x7fae4f,0x6a9c45,0x93bb5a,0x5d8f3e]);b.ball(1.5*s,1.4*s,1.5*s,c,x,1.4*s+1.0*s,z,G.ico0);
  if(rnd()<.6)b.ball(1.0*s,1.0*s,1.0*s,c,x+0.6*s,1.4*s+1.9*s,z+0.3*s,G.ico0)}
-{const x1=-140,x2=420,L=(x2-x1)*Math.hypot(1,0.1333),cx=(x1+x2)/2;
+{const x1=-140,x2=420,L=(x2-x1)*Math.hypot(1,nbK),cx=(x1+x2)/2;
  world.at(WX(cx),WZ(NB(cx)-6),-railAng,()=>world.box(L,0.03,10,C.grass,0,0,0));
  world.at(WX(cx),WZ(railZ(cx)),-railAng,()=>{world.box(L,0.12,4,0xa39b8f,0,0,0);for(let s=-L/2;s<L/2;s+=0.9)world.box(0.26,0.1,2.6,0x6b5643,s,0.12,0);
   world.box(L,0.16,0.12,0x5f6368,0,0.2,-0.76);world.box(L,0.16,0.12,0x5f6368,0,0.2,0.76)})}
@@ -281,7 +308,7 @@ function fenceM(poly,skip=[]){for(let i=0;i<poly.length-1;i++){if(skip.includes(
  for(let s=0;s<L;s+=3){const e=Math.min(L,s+3),m=(s+e)/2,mx=x1+dx*m,mz=z1+dz*m;if(nearRoad(mx,mz,1.5))continue;
   world.box(e-s,0.08,0.08,0x8e959b,WX(mx),1.7,WZ(mz),ry);world.box(e-s,0.08,0.08,0x8e959b,WX(mx),0.5,WZ(mz),ry);world.box(e-s,1.3,0.03,0xa8b0b6,WX(mx),0.5,WZ(mz),ry);
   world.box(0.12,2,0.12,0x6f777d,WX(x1+dx*s),0,WZ(z1+dz*s))}}}
-fenceM(W1,[6,7,8]);fenceM(W2);
+fenceM(FENCE,[13,14,15]);
 
 /* ---------- модели ---------- */
 function frame(b,x,z,ry,col,y=0,L=3.4,W=1.5){b.at(x,z,ry,()=>{
@@ -557,85 +584,110 @@ function building(cfg){
  const wm=wb.build(walls),im=ib.build(g),rm_=rb.build(g,{transparent:true});
  if(rm_){rm_.userData.id=cfg.id;hits.push(rm_)}
  const obj={cfg,r,g,walls,roof:rm_,c:0,open:false,locked:!!cfg.locked,rooms};
+ if(cfg.rot){const piv=new THREE.Group();piv.position.set(r.x,0,r.z);piv.rotation.y=-cfg.rot*Math.PI/180;scene.add(piv);piv.add(g);g.position.set(-r.x,0,-r.z)}
  buildings.push(obj);pendL.forEach(L=>L.b=obj);pendL=[];
  if(cfg.label!==false)labels.push({el:mkLabel('b',cfg.name,null,cfg.id),p:new V3(cfg.lx!=null?X(cfg.lx):r.x,h+(cfg.roofType==='gable'?Math.min(r.w,r.d)*0.22:1)+2.2,cfg.lz!=null?Z(cfg.lz):r.z),b:obj,kind:'b'});
  rooms.forEach(rm=>{const L=labels.find(l=>l.el.dataset.id===rm.id);if(L)L.b=obj});
  return obj}
 
 const T={cut:0xc9d3dc,weld:0xd9cbb9,sand:0xd9cfae,paint:0xc9ddcc,tent:0xd0d9ea,asm:0xe6dfcd,wh:0xd7d1c5,off:0x34a596};
-/* Здания — по 2ГИС и вашим подписям (метры от СЗ угла красного склада) */
-building({id:'b1n',name:'Цех 1 · корпус 6/1',mr:[-61.5,12.6,-40.5,24],h:9,wall:0xe9dcbf,roof:0xc4b391,roofType:'gable',label:false,
- doors:[{side:'n',pm:[-58,-52]}],
- rooms:[{id:'weldAx',name:'Сварка осей, трапов, каркасов тента',type:'weldAx',tint:T.weld}]});
-building({id:'b1',name:'Цех 1 · корпус 6/1',mr:[-61.5,24,-48.5,52],h:9,wall:0xe9dcbf,roof:0xc4b391,roofType:'gable',lz:MZ(30),
- doors:[],
- rooms:[{id:'cut',step:1,name:'Приёмка и резка металла',mr:[-61.5,24,-48.5,37],type:'cut',tint:T.cut},
-  {id:'weld',step:2,name:'Сварка рамы',mr:[-61.5,37,-48.5,52],type:'weld',tint:T.weld}]});
-/* отдельное оцинкованное здание впритык к заготовке и сварке рамы: склады осей/трапов и крупного */
-building({id:'b1a',name:'Склад осей, трапов и крупного',mr:[-48.5,24,-40.5,52],h:6,wall:0xc9ced3,roof:0xaeb4ba,roofType:'gable',label:false,
- doors:[{side:'e',pm:[27,32]},{side:'e',pm:[43,48]}],
- rooms:[{id:'whAx',name:'Склад: оси, трапы',mr:[-48.5,24,-40.5,37],type:'whAx',tint:T.wh},
-  {id:'whBig',name:'Склад крупное',mr:[-48.5,37,-40.5,52],type:'whBig',tint:T.wh}]});
-building({id:'b1s',name:'Цех 1 · корпус 6/1',mr:[-61.5,52,-40.5,75.6],h:9,wall:0xe9dcbf,roof:0xc4b391,roofType:'gable',label:false,
- doors:[{side:'e',pm:[56,62]}],
- rooms:[{id:'asm1',step:5,name:'Сборка 1',mr:[-61.5,52,-40.5,64],type:'asm',tint:T.asm},
-  {id:'off1',name:'Офис',mr:[-61.5,64,-40.5,75.6],type:'office',tint:T.off}]});
-building({id:'b1c',name:'Склад запчастей для сварки из ЛГЦ',mr:[-40.5,16,-30,22],h:5,wall:0xddd0b3,roof:0xb6a88a,label:false,
- doors:[{side:'e',pm:[17,21]}],rooms:[{id:'whLgc',name:'Склад от ЛГЦ для сварки',type:'wh',tint:T.wh}]});
-// кирпичное крыльцо цеха 1 (восточная стена, у офиса 1; старт видео-обхода)
-{const w=world,BR=0xb4523a;w.at(WX(-40.5)+0.2,WZ(70),-Math.PI/2,()=>{
+/* Здания — из plan/plan.json: скриншот 2ГИС, привязанный к контурам OSM, + линейка 2ГИС и подписи Ильи.
+   Метры от СЗ угла склада комплектующих; оси как на вашем скриншоте 2ГИС (он повёрнут на 15° от севера). */
+const ZINC=0xc9ced3,ZINCR=0xb6bcc1,PANEL=0xe3ddcf,PANELR=0xa8b1b8,BRICK=0xcfc6b8;
+const [c1x1,c1z1,c1x2,c1z2]=PR('b1'),c1z=f=>+(c1z1+(c1z2-c1z1)*f).toFixed(1);
+// Цех 1 (6/1): стены из серого профлиста, внизу кирпич; кирпичный 2-этажный офис 1 в южном торце
+building({id:'b1',name:'Цех 1 · корпус 6/1',mr:[c1x1,c1z1,c1x2,c1z(0.85)],h:9,wall:0xbfc5ca,trim:0x9c6a55,roof:0x9aa2a8,roofType:'gable',lz:MZ(c1z(0.4)),
+ doors:[{side:'n',pm:[c1x1+6,c1x1+12]},{side:'e',pm:[c1z(0.74),c1z(0.8)]}],
+ rooms:[{id:'weldAx',name:'Сварка осей, трапов, каркасов тента',mr:[c1x1,c1z1,c1x2,c1z(0.18)],type:'weldAx',tint:T.weld},
+  {id:'cut',step:1,name:'Приёмка и резка металла',mr:[c1x1,c1z(0.18),c1x2,c1z(0.39)],type:'cut',tint:T.cut},
+  {id:'weld',step:2,name:'Сварка рамы',mr:[c1x1,c1z(0.39),c1x2,c1z(0.62)],type:'weld',tint:T.weld},
+  {id:'asm1',step:5,name:'Сборка 1',mr:[c1x1,c1z(0.62),c1x2,c1z(0.85)],type:'asm',tint:T.asm}]});
+building({id:'b1o',name:'Офис 1 · отдел продаж',mr:[c1x1,c1z(0.85),c1x2,c1z2],h:7,wall:BRICK,trim:0x9c5a46,roof:0x8d8f91,parapet:0xbcb3a5,label:false,
+ rooms:[{id:'off1',name:'Офис 1',type:'office',tint:T.off}]});
+// кирпичная арка «ALASKA · Отдел продаж» на восточной стене офиса 1 (фото 1709, старт видео-обхода)
+{const w=world,BR=0xb4523a;w.at(WX(c1x2)+0.2,WZ(c1z(0.89)),-Math.PI/2,()=>{
  for(const s of[-1,1])w.box(0.55,2.6,1.8,BR,s*1.1,0,-0.9);
  for(let k=0;k<=8;k++){const a=Math.PI*k/8;w.box(0.5,0.45,1.8,BR,-Math.cos(a)*1.1,2.6+Math.sin(a)*1.0,-0.9,0,0,a-Math.PI/2)}
- w.box(1.3,2.2,0.08,0x4a2f24,0,0,-0.02);for(let k=0;k<3;k++)w.box(3.2-k*0.3,0.18,2.2-k*0.4,0x9b5a46,0,k*0.18,-1.1+k*0.2)})}
+ w.box(1.3,2.2,0.08,0x4a2f24,0,0,-0.02);for(let k=0;k<3;k++)w.box(3.2-k*0.3,0.18,2.2-k*0.4,0x9b5a46,0,k*0.18,-1.1+k*0.2);
+ w.box(2.6,1.0,0.06,0x8fc6e8,-3.2,3.6,-0.04)})}
+building({id:'b1c',name:'Склад запчастей для сварки из ЛГЦ',mr:PR('b1c'),h:5,wall:ZINC,roof:ZINCR,label:false,
+ doors:[{side:'e',pm:[PR('b1c')[1]+1.2,PR('b1c')[3]-1.2]}],rooms:[{id:'whLgc',name:'Склад от ЛГЦ для сварки',type:'wh',tint:T.wh}]});
+/* отдельное низкое оцинкованное здание впритык к заготовке и сварке рамы: склады осей/трапов и крупного (средняя пристройка 6/1 на 2ГИС) */
+{const [x1,z1,x2,z2]=PR('b1a'),zm=+((z1+z2)/2).toFixed(1);
+building({id:'b1a',name:'Склад осей, трапов и крупного',mr:PR('b1a'),h:6,wall:ZINC,roof:ZINCR,roofType:'gable',label:false,
+ doors:[{side:'e',pm:[z1+3,z1+8]},{side:'e',pm:[zm+3,zm+8]}],
+ rooms:[{id:'whAx',name:'Склад: оси, трапы',mr:[x1,z1,x2,zm],type:'whAx',tint:T.wh},
+  {id:'whBig',name:'Склад крупное',mr:[x1,zm,x2,z2],type:'whBig',tint:T.wh}]})}
 /* Корпус 6 ст1: песко и тента на севере, маляр, цех 2 (Сборка 2), офис и отдел продаж на восточном торце */
-building({id:'b2a',name:'Корпус 6 ст1',mr:[-26,23.5,-10.9,37],h:8,wall:0xece6d8,roof:0xa8b1b8,label:false,
- doors:[{side:'n',pm:[-22,-15]}],rooms:[{id:'sand',step:3,name:'Пескоструй',type:'sand',tint:T.sand}]});
-building({id:'b2t',name:'Корпус 6 ст1 · Тента',mr:[-10.9,20.3,-2.1,37],h:8,wall:0xece6d8,roof:0xa8b1b8,label:false,
- doors:[{side:'n',pm:[-9,-4]}],rooms:[{id:'tent',name:'Тента',type:'tent',tint:T.tent}]});
-building({id:'b2n',name:'Корпус 6 ст1',mr:[-26,37,-18.4,46.4],h:8,wall:0xece6d8,roof:0xa8b1b8,label:false,
- doors:[{side:'s',pm:[-25,-20]}],rooms:[{id:'paintW',name:'Малярка',type:'paint',tint:T.paint}]});
-building({id:'b2b',name:'Корпус 6 ст1',mr:[-18.4,37,46.4,51.8],h:8,wall:0xece6d8,roof:0xa8b1b8,lx:MX(12),lz:MZ(44),
- doors:[{side:'s',pm:[-12,-4]},{side:'s',pm:[4,12]},{side:'s',pm:[14,20]},{side:'n',pm:[6,14]},{side:'e',pm:[42,46]}],
- rooms:[{id:'paint',step:4,name:'Малярка',mr:[-18.4,37,-1.3,51.8],type:'paint',tint:T.paint},
-  {id:'asm2',step:5,name:'Цех 2 · Сборка 2',mr:[-1.3,37,24,51.8],type:'asm',tint:T.asm},
-  {id:'mini',name:'Мини-склад',mr:[24,37,28.8,51.8],type:'mini',tint:T.wh},
-  {id:'off2',name:'Офис · отдел продаж',mr:[28.8,37,46.4,51.8],type:'office',tint:T.off}]});
-building({id:'b3',name:'Склад комплектующих',mr:[0,0,49,14.3],h:6.5,wall:0x8e3a2e,trim:0x5a2a22,roof:0x7d3328,roofType:'gable',ridge:'x',windows:false,
+building({id:'b2a',name:'Корпус 6 ст1',mr:PR('b2a'),h:8,wall:PANEL,roof:PANELR,label:false,
+ doors:[{side:'n',pm:[PR('b2a')[0]+3,PR('b2a')[0]+9]}],rooms:[{id:'sand',step:3,name:'Пескоструй',type:'sand',tint:T.sand}]});
+// циклон и фанерная будка пескоструя у северной стены песко (видео 1:00–1:10, фото 1604, 1628–1629); место примерное
+{const b=world,x=WX(PR('b2a')[0]+4),z=WZ(PR('b2a')[1]-3);b.box(3,3.2,2.6,0xd8c79a,x-4,0,z);b.cyl(1.1,4,0xb9b3a5,x,4.6,z);b.cone(1.1,2.2,0xb9b3a5,x,0.4,z);
+ for(const [dx,dz] of[[-1,-1],[1,-1],[-1,1],[1,1]])b.box(0.12,6.6,0.12,0x6f6a60,x+dx,0,z+dz);b.at(x,z,0,()=>b.box(5.5,0.7,0.7,0xb9b3a5,-2.4,6.4,0,0,0,-0.5))}
+building({id:'b2t',name:'Корпус 6 ст1 · Тента',mr:PR('b2t'),h:8.5,wall:ZINC,roof:ZINCR,label:false,
+ doors:[{side:'n',pm:[PR('b2t')[0]+1,PR('b2t')[2]-1]}],rooms:[{id:'tent',name:'Тента',type:'tent',tint:T.tent}]});
+building({id:'b2n',name:'Корпус 6 ст1',mr:PR('b2n'),h:8,wall:PANEL,roof:PANELR,label:false,
+ doors:[{side:'s',pm:[PR('b2n')[0]+2,PR('b2n')[0]+7]}],rooms:[{id:'paintW',name:'Малярка',type:'paint',tint:T.paint}]});
+{const [x1,z1,x2,z2]=PR('b2b');
+building({id:'b2b',name:'Корпус 6 ст1',mr:PR('b2b'),h:8,wall:PANEL,roof:PANELR,lx:MX(12),lz:MZ(z1+6),
+ doors:[{side:'s',pm:[-12,-4]},{side:'s',pm:[4,12]},{side:'s',pm:[14,20]},{side:'n',pm:[6,14]},{side:'e',pm:[z1+3,z1+8]}],
+ rooms:[{id:'paint',step:4,name:'Малярка',mr:[x1,z1,-1.1,z2],type:'paint',tint:T.paint},
+  {id:'asm2',step:5,name:'Цех 2 · Сборка 2',mr:[-1.1,z1,24,z2],type:'asm',tint:T.asm},
+  {id:'mini',name:'Мини-склад',mr:[24,z1,28.9,z2],type:'mini',tint:T.wh},
+  {id:'off2',name:'Офис · отдел продаж',mr:[28.9,z1,x2,z2],type:'office',tint:T.off}]});
+ // флаги на крыше (РФ, красный, белый) и ель у восточного торца — по фото 1539, 1559, 1565
+ [[0xffffff,0x2f5fa8,0xd52b1e],[0xd52b1e,0xd52b1e,0xd52b1e],[0xf4f4f0,0xf4f4f0,0xf4f4f0]].forEach((f,i)=>{const x=WX(x2-14+i*4),z=WZ(z1+1);
+  world.box(0.1,4,0.1,0x9aa1a7,x,8.4,z);f.forEach((c,k)=>world.box(1.6,0.3,0.04,c,x+0.85,11.6-k*0.3,z))});
+ {const x=WX(x2+3),z=WZ(z1-3);world.cyl(0.25,2,C.trunk,x,1,z,0,0,0,G.cyl6);for(let k=0;k<5;k++)world.cone(3.2-k*0.55,3.2,0x2f5a3a,x,1.2+k*2.2,z)}}
+building({id:'b3',name:'Склад комплектующих',mr:PR('b3'),h:6.5,wall:0x8e3a2e,trim:0x5a2a22,roof:0x7d3328,roofType:'gable',ridge:'x',windows:false,
  doors:[{side:'s',pm:[8,15]},{side:'s',pm:[30,37]}],rooms:[{id:'whKit',name:'Склад комплектующих',type:'whKit',tint:T.wh}]});
-building({id:'b4',name:'ЛГЦ',mr:[74.7,0,113,11.7],h:6,wall:0xc9ced3,trim:0x9aa1a7,roof:0xb6bcc1,roofType:'gable',ridge:'x',windows:false,
- doors:[{side:'w',pm:[3,8]},{side:'e',pm:[3,8]}],rooms:[{id:'lgc',name:'ЛГЦ',type:'lgc',tint:T.cut}]});
-building({id:'b5',name:'Строящийся цех',mr:[78,14.5,113,26.5],h:6,wall:0xc9ced3,trim:0x9aa1a7,roof:0xb6bcc1,roofType:'gable',ridge:'x',windows:false,
- doors:[{side:'w',pm:[18,23]}],rooms:[{id:'constr',name:'Строящийся цех',type:'none',tint:0xb9b5ab}]});
-building({id:'b7',name:'Чёрный цех · корпус 6/2',mr:[190,47,309,156],h:8,wall:0x60656c,trim:0x3c3f44,roof:0x4a4e54,parapet:0x5a5e64,
+building({id:'b4',name:'ЛГЦ',mr:PR('b4'),h:6,wall:ZINC,trim:0x9aa1a7,roof:ZINCR,roofType:'gable',ridge:'x',windows:false,
+ doors:[{side:'w',pm:[2,7]},{side:'e',pm:[2,7]}],rooms:[{id:'lgc',name:'ЛГЦ',type:'lgc',tint:T.cut}]});
+building({id:'b5',name:'Строящийся цех',mr:PR('b5'),h:5,wall:ZINC,trim:0x9aa1a7,roof:ZINCR,roofType:'gable',ridge:'x',windows:false,
+ doors:[{side:'e',pm:[PR('b5')[1]+3.5,PR('b5')[1]+8.5]}],rooms:[{id:'constr',name:'Строящийся цех',type:'none',tint:0xb9b5ab}]});
+// тентованный прицеп справа от ворот нового цеха (фото 1568)
+trailer(world,WX(PR('b5')[2]+3),WZ(PR('b5')[1]+2),0,{tent:0xd6d7d9,L:4.2,W:1.9,color:0xc9ccd0});
+building({id:'b7',name:'Чёрный цех · корпус 6/2',mr:PR('b7'),rot:PB('b7').rot,h:8,wall:0x60656c,trim:0x3c3f44,roof:0x4a4e54,parapet:0x5a5e64,
  doors:[{side:'w',pm:[96,104]},{side:'w',pm:[60,68]}],rooms:[{id:'black',name:'Труборез и рамы на цинк',type:'black',tint:0xc5c3bd}]});
-building({id:'b6',name:'Не наше здание',mr:[74,28.8,114.6,49.9],h:8,wall:0xc4c1ba,roof:0xa7a49e,locked:true,cross:true});
-{const r=RM(211,159,265,174);world.box(r.w,7,r.d,0xcfcac0,r.x,0,r.z);world.box(r.w+0.3,0.4,r.d+0.3,0xbdb7ab,r.x,7,r.z);
- const hm=pad('k6',r,0xcfcac0,scene,0.01);hm.visible=false;labelZone('k6','Корпус 6',new V3(r.x,9,r.z))}
-INFO.k6={tag:'Вопрос',title:'Корпус 6',text:'Стоит южнее Чёрного цеха внутри контура, который вы обвели на 2ГИС.',ask:['Корпус 6 ваш? Что в нём?']};
-building({id:'zap',name:'Склад запчастей',mr:[-40.5,72.2,-29,78.5],h:4.5,wall:0xddd0b3,roof:0xb2a27f,
- doors:[{side:'n',pm:[-38,-33]}],rooms:[{id:'zap',name:'Склад запчастей',type:'wh',tint:T.wh}]});
-// КПП (отмечен вами на 2ГИС у въезда)
-{const b=world,kx=WX(153.5),kz=WZ(84);b.box(3,2.6,2.4,0xe8dd9a,kx,0,kz);b.box(3.3,0.25,2.7,0x8a8f95,kx,2.6,kz);b.box(0.06,1.0,1.2,C.glass,kx-1.52,1.2,kz);
- b.at(WX(150),WZ(82),-Math.atan2(18,8),()=>{for(let i=0;i<8;i++)b.box(1.0,0.12,0.12,i%2?0xd52b1e:0x2f8a46,i*1.0-3.5,1.0,0)});
+// чужие и неясные здания: серые, крыша не снимается
+// «не наше» южнее ЛГЦ: красный ангар (видео 2:21 «следующий красный — это не наше здание», фото 1561), у западного торца киоск «Автомасла» за чёрным забором
+building({id:'b6',name:'Не наше · красный ангар',mr:PR('b6'),h:4.5,wall:0x8f4a3c,trim:0x5e3a33,roof:0x6e3b33,roofType:'gable',ridge:'x',windows:false,locked:true});
+{const [x1,z1,x2,z2]=PR('b6'),w=world;
+ for(let x=x1+12;x<x2-2;x+=4.2)w.box(3.6,3.6,0.1,0x5f6b70,WX(x+1.8),0,WZ(z1)-0.06);
+ for(let z=z1;z<=z2;z+=0.25)w.box(0.04,1.8,0.04,0x1e2124,WX(x1-2.5),0,WZ(z));
+ w.box(0.06,0.08,z2-z1,0x1e2124,WX(x1-2.5),1.75,WZ((z1+z2)/2));w.box(0.06,0.08,z2-z1,0x1e2124,WX(x1-2.5),0.2,WZ((z1+z2)/2));
+ w.box(2.6,2.6,2.4,0xe9e7e2,WX(x1-1.2),0,WZ(z2-3.5));w.box(0.05,0.5,2.2,0x2f5f8a,WX(x1-2.52),2.0,WZ(z2-3.5))}
+building({id:'k6',name:'Корпус 6',mr:PR('k6'),rot:PB('k6').rot,h:7,wall:0xcfcac0,roof:0xbdb7ab,locked:true,windows:false});
+building({id:'q1',name:'Без подписи',mr:PR('q1'),rot:PB('q1').rot,h:4,wall:0xcfcac0,roof:0xbdb7ab,locked:true,windows:false});
+building({id:'q2',name:'Без подписи',mr:PR('q2'),rot:PB('q2').rot,h:4,wall:0xcfcac0,roof:0xbdb7ab,locked:true,windows:false});
+INFO.k6={tag:'Вопрос',title:'Корпус 6',text:'Стоит южнее Чёрного цеха внутри контура, который вы обвели на 2ГИС. На спутнике здесь подписан Рефстройтрейд. По 2ГИС ≈52×18 м.',ask:['Корпус 6 ваш? Что в нём?']};
+INFO.q1=INFO.q2={tag:'Вопрос',title:'Здание без подписи',text:'Два небольших здания восточнее Чёрного цеха есть на 2ГИС внутри обведённого вами контура.',ask:['Что это за здания и ваши ли они?']};
+// склад запчастей: по плану Excel — нижняя полоса под «Батонами» (E38:I38), вдоль южного забора;
+// на фото 1746 слева длинное низкое серое здание. Длина и точное место — примерные
+building({id:'zap',name:'Склад запчастей',mr:PR('zap'),h:3.5,wall:0xc3c8cc,trim:0x8e959b,roof:0x9aa0a5,windows:false,
+ doors:[{side:'n',pm:[-21,-17]},{side:'n',pm:[-3,1]}],rooms:[{id:'zap',name:'Склад запчастей',type:'wh',tint:T.wh}]});
+// навес на ржавых фермах и синие контейнеры у офиса 1 (фото 1709, 1746), место примерное
+{const [x1,z1,x2,z2]=PR('canopy1'),w=world,RU=0x7a4a2e,BL=0x3f6f95;
+ for(const x of[x1,(x1+x2)/2,x2])for(const z of[z1,z2])w.box(0.2,3.6,0.2,RU,WX(x),0,WZ(z));
+ for(const z of[z1,z2])w.box(x2-x1+0.4,0.4,0.15,RU,WX((x1+x2)/2),3.3,WZ(z));
+ for(let x=x1;x<=x2;x+=2)w.box(0.12,0.3,z2-z1,RU,WX(x),3.45,WZ((z1+z2)/2));
+ w.box(x2-x1+1,0.08,z2-z1+1,0x55524c,WX((x1+x2)/2),3.75,WZ((z1+z2)/2));
+ for(const [x,z] of[[-47.6,82.5],[-44.4,82.5]]){w.box(2.44,2.6,6.06,BL,WX(x),0,WZ(z));
+  for(let s=-2.8;s<=2.8;s+=0.4)w.box(2.5,2.4,0.05,0x35607f,WX(x),0.1,WZ(z+s))}
+ w.box(6.06,2.6,2.44,BL,WX(-35.5),0,WZ(80.6));for(let s=-2.8;s<=2.8;s+=0.4)w.box(0.05,2.4,2.5,0x35607f,WX(-35.5+s),0.1,WZ(80.6));
+ labelZone('canopy1','Навес и контейнеры 1–4',new V3(WX(-45.5),4.8,WZ(82.5)))}
+INFO.canopy1={tag:'Склад',title:'Навес на ржавых фермах, синие контейнеры',text:'На фото 1709 и 1746 справа от кирпичной арки офиса 1: открытый навес на ржавых фермах, под ним и рядом синие контейнеры с номерами (виден «4»). Место нарисовано по фото, примерно.',ask:['Что хранится в контейнерах 1–4?']};
+// КПП (квадрат на вашем скриншоте 2ГИС у въезда)
+{const [a,b,c,d]=PLAN.kpp,kx=WX((a+c)/2),kz=WZ((b+d)/2),b_=world;b_.box(3,2.6,2.4,0xe8dd9a,kx,0,kz);b_.box(3.3,0.25,2.7,0x8a8f95,kx,2.6,kz);b_.box(0.06,1.0,1.2,C.glass,kx-1.52,1.2,kz);
+ b_.at(kx-3,kz+4,-Math.atan2(18,8),()=>{for(let i=0;i<8;i++)b_.box(1.0,0.12,0.12,i%2?0xd52b1e:0x2f8a46,i*1.0-3.5,1.0,0)});
  labelZone('kpp','КПП',new V3(kx,3.6,kz))}
-INFO.kpp={tag:'Въезд',title:'КПП',text:'Будка охраны и шлагбаум на въезде, где вы отметили на 2ГИС.',ask:['Через КПП ведётся учёт въезда машин с металлом и отгрузок?']};
-for(const [id,q] of [['gar2',mp([74,51.5,114,57.5])]]){
- const r=R(...q),n=Math.floor(r.w/3.6);
+INFO.kpp={tag:'Въезд',title:'КПП',text:'Будка охраны и шлагбаумы в красно-зелёную полоску. Место — квадрат, который вы нарисовали на 2ГИС. На спутниковом скрине квадрат стоит южнее, у развилки — это одно место или два?',ask:['КПП стоит там, где квадрат на 2ГИС, или у развилки на спутнике?','Через КПП ведётся учёт въезда машин с металлом и отгрузок?']};
+{const r=RM(...PR('gar')),n=Math.floor(r.w/3.6);
  for(let i=0;i<n;i++){const x=r.x1+1.8+i*(r.w/n);world.box(r.w/n-0.15,3,r.d,pick([0xc9c2b2,0xbfb8a6,0xd2cbbb]),x,0,r.z);world.box(r.w/n-0.15,0.25,r.d+0.3,0x8f8a7f,x,3,r.z);
-  world.box(r.w/n-0.9,2.4,0.1,pick([0x6d7a86,0x8a6b4e,0x4f6d5c]),x,0,r.z2+0.02)}
- const hm=pad(id,r,0xccc6b8,scene,0.01);hm.visible=false;
- labelZone(id,'Гаражи',new V3(r.x,4.5,r.z))}
-INFO.gar1=INFO.gar2={tag:'Территория',title:'Гаражи',text:'На схеме гаражи стоят в двух местах в правой нижней части.',ask:['Гаражи ваши? Что в них: техника, погрузчики, личные машины?']};
-
-// стройка ЛГЦ 2
-{const r=R(437,252,555,292),b=world;pad('constr',r,0xc8b890);
- for(let x=r.x1+1;x<=r.x2-0.5;x+=6){b.box(0.35,7,0.35,0x8a5a3a,x,0,r.z1+1);b.box(0.35,7,0.35,0x8a5a3a,x,0,r.z2-1)}
- b.box(r.w-1.5,0.4,0.3,0x8a5a3a,r.x,7,r.z1+1);b.box(r.w-1.5,0.4,0.3,0x8a5a3a,r.x,7,r.z2-1);
- for(let x=r.x1+1;x<r.x2-3;x+=6)b.box(0.3,0.4,r.d-2,0x8a5a3a,x,6.8,r.z);
- b.box(14,2.2,0.3,0xcfc4ad,r.x1+8,0,r.z1+1);b.cone(2.4,1.8,0xc9a44a,r.x2-6,0,r.z);b.cone(1.5,1.2,0x9a9387,r.x2-10,0,r.z+2);
- for(let i=0;i<3;i++)b.box(1.2,0.6,1,0xb88f56,r.x+i*1.4,0,r.z+3);
- for(let i=0;i<5;i++){const x=r.x1+3+i*5;b.box(0.3,0.9,0.3,0xf08a24,x,0,r.z2+0.4)}
- labelZone('constr','Стройка цеха ЛГЦ 2',new V3(r.x,8.5,r.z))}
+  world.box(r.w/n-0.9,2.4,0.1,pick([0x6d7a86,0x8a6b4e,0x4f6d5c]),x,0,r.z1-0.02)}
+ const hm=pad('gar2',r,0xccc6b8,scene,0.01);hm.visible=false;
+ labelZone('gar2','Гаражи',new V3(r.x,4.5,r.z))}
+INFO.gar1=INFO.gar2={tag:'Территория',title:'Гаражи',text:'Длинный ряд гаражей вдоль южной границы, у серого высокого здания соседей (на 2ГИС — узкая полоса 72×7 м). В видео на 3:12–3:16 вы говорите «не наше… вот гаражи».',ask:['Гаражи ваши или соседей?']};
 
 /* ---------- открытые зоны ---------- */
 function zone(id,name,q,color,fill,lab=true){const r=R(...q);pad(id,r,color);border(world,r,0xf6efd6);if(fill)fill(world,r);if(lab)labelZone(id,name,new V3(r.x,1.8,r.z));return r}
@@ -662,7 +714,7 @@ zone('trash','Мусор и брак',mp([-60,-2,-44,10]),0xd6cbb8,(b,r)=>{
  frame(b,r.x-2,r.z+3,0.4,0x6b4a35,0.2)});
 zone('waitSand','Сваренные рамы ждут пескоструй и малярку',mp([-12,-2,-1,12]),0xe2d7c3,(b,r)=>{
  for(let i=0;i<3;i++)for(let j=0;j<4;j++)if(rnd()<.85)frameStack(b,r.x1+3+i*5.3,r.z1+2.2+j*3.6,0,C.black,1+Math.floor(rnd()*4))});
-zone('clients','Собранные прицепы для клиентов «с колёс»',mp([12,28,55,35.5]),0xd5e3cc,(b,r)=>{
+zone('clients','Собранные прицепы для клиентов «с колёс»',mp([12,27,55,33.6]),0xd5e3cc,(b,r)=>{
  for(let i=0;i<5;i++)for(let j=0;j<3;j++)if(rnd()<.85)trailer(b,r.x1+3+i*5.6,r.z1+2.2+j*3.4,0,{color:pick(TRC),tent:rnd()<.5?pick(TENTC):null})});
 zone('distrib','Рамы, трапы, каркасы тента после малярки ждут распределения',mp([-24,54,22,62]),0xd9e4dc,(b,r)=>{
  for(let i=0;i<7;i++)frameStack(b,r.x1+3+i*5.2,r.z,0,C.paint,1+Math.floor(rnd()*4));
@@ -671,17 +723,37 @@ zone('ship2','Батоны · отправка дилерам',mp([24,54,46,62])
  for(let i=0;i<2;i++)for(let j=0;j<2;j++)trailer(b,r.x1+3+i*5.6,r.z1+1.6+j*2.8,0,{color:0xc9c3b4,lid:0xe8e4da})});
 zone('ship1','Батоны · отправка дилерам',mp([-24,70,46,79]),0xf0d9c4,(b,r)=>{
  for(let i=0;i<8;i++)for(let j=0;j<2;j++)if(rnd()<.8)trailer(b,r.x1+3+i*5.5,r.z1+2+j*3.2,0,{color:pick(TRC),lid:rnd()<.5?0xe8e4da:null,tent:rnd()<.3?pick(TENTC):null})});
-zone('ready1','Собранные прицепы для клиентов',mp([68,70,122,79]),0xd5e3cc,(b,r)=>{
+zone('ready1','Собранные прицепы для клиентов',mp([68,68.2,122,76.6]),0xd5e3cc,(b,r)=>{
  for(let i=0;i<8;i++)for(let j=0;j<2;j++)if(rnd()<.85)trailer(b,r.x1+3+i*5.3,r.z1+1.9+j*3.2,0,{color:pick(TRC),tent:rnd()<.4?pick(TENTC):null})});
-zone('ready2','Собранные прицепы для клиентов',mp([66,28,72,62]),0xd5e3cc,(b,r)=>{
- for(let j=0;j<9;j++)for(let i=0;i<1;i++)if(rnd()<.85)trailer(b,r.x1+3+i*5.6,r.z1+2+j*3.5,0,{color:pick(TRC),tent:rnd()<.4?pick(TENTC):null})});
-zone('containers','Контейнерщики',mp([144.5,-14,169.3,59.4]),0xd2ccc0,(b,r)=>{
+zone('ready2','Собранные прицепы для клиентов',mp([67.5,47,71.5,62]),0xd5e3cc,(b,r)=>{
+ for(let j=0;j<4;j++)for(let i=0;i<1;i++)if(rnd()<.85)trailer(b,r.x1+3+i*5.6,r.z1+2+j*3.5,0,{color:pick(TRC),tent:rnd()<.4?pick(TENTC):null})});
+zone('containers','Контейнерщики',mp(PLAN.containers),0xd2ccc0,(b,r)=>{
  const cc=[0xc0392b,0x2e6da4,0x2f8a57,0xd68a2a,0x7d8a94,0x8e4b3a,0x2c3e50];
- for(let j=0;j<11;j++)for(let i=0;i<2;i++){const n=1+Math.floor(rnd()*3);for(let k=0;k<n;k++){const x=r.x1+4.6+i*8.4,z=r.z1+2.5+j*7.2,col=pick(cc);
+ for(let j=0;j<10;j++)for(let i=0;i<2;i++){const n=1+Math.floor(rnd()*3);for(let k=0;k<n;k++){const x=r.x1+4.6+i*8.4,z=r.z1+2.5+j*7.2,col=pick(cc);
   b.box(6.06,2.55,2.44,col,x,k*2.6,z);for(let s=-2.6;s<=2.6;s+=0.43)b.box(0.06,2.3,2.5,col===0x7d8a94?0x6d7a84:new THREE.Color(col).multiplyScalar(0.85).getHex(),x+s,k*2.6+0.12,z)}}},false);
-labelZone('containers','Контейнерщики',new V3(WX(157),9,WZ(22)));
+labelZone('containers','Контейнерщики',new V3(WX((PLAN.containers[0]+PLAN.containers[2])/2),9,WZ(18)));
+/* башенный кран на рельсах вдоль контейнеров (чёрная линия на вашем скрине 2ГИС), вышка-будка, бытовка,
+   ржавый козловой кран за бордовым забором (фото 1550, 1860, 1861; места этих трёх примерные) */
+{const [[ax,az],[bx,bz]]=PLAN.tower_crane_rail,L=Math.hypot(bx-ax,bz-az),ang=Math.atan2(-(bz-az),bx-ax),b=world;
+ b.at(WX((ax+bx)/2),WZ((az+bz)/2),ang,()=>{b.box(L,0.15,3.2,0xa39b8f,0,0,0);for(let s=-L/2;s<L/2;s+=1)b.box(0.25,0.1,2.6,0x6b5643,s,0.15,0);
+  b.box(L,0.16,0.12,0x5f6368,0,0.25,-0.76);b.box(L,0.16,0.12,0x5f6368,0,0.25,0.76)});
+ const tc=new THREE.Group();scene.add(tc);const tb=new Batch(),M=0x8f9aa3,H=30;
+ tb.box(5,1,5,0x55595e,0,0.3,0);for(let y=1.3;y<H;y+=2.4){tb.box(1.8,0.12,1.8,M,0,y,0);for(const [dx,dz] of[[-.9,-.9],[.9,-.9],[-.9,.9],[.9,.9]])tb.box(0.14,2.4,0.14,M,dx,y,dz)}
+ const jib=new THREE.Group();jib.position.y=H;tc.add(jib);const jb=new Batch();jb.box(32,1.2,1.1,M,10,0.6,0);jb.box(10,1,1.2,M,-10,0.6,0);jb.box(3,2.2,2.6,0x45494e,-12,0,0);
+ jb.box(2,2,2,0xd9d4c8,1.8,-1.6,0);jb.box(0.5,4,0.5,M,0,1.8,0);jb.build(jib);tb.build(tc);
+ const p0=PM(ax+(bx-ax)*0.35,az+(bz-az)*0.35);tc.position.copy(p0);anims.push((dt,t)=>{jib.rotation.y=Math.sin(t*0.05)*1.2+0.6});
+ labels.push({el:mkLabel('z','Башенный кран на ЖД',null,'tcrane'),p:null,obj:tc,off:new V3(0,H+4,0),kind:'z'})}
+{const b=world,wx=WX(PLAN.containers[0]-3),wz=WZ(30);for(const [dx,dz] of[[-1,-1],[1,-1],[-1,1],[1,1]])b.box(0.18,7.5,0.18,0x5a5e63,wx+dx,0,wz+dz);
+ for(let y=1.5;y<7.5;y+=1.5)b.box(2.2,0.1,2.2,0x5a5e63,wx,y,wz);b.box(2.8,2.2,2.8,0x9b3b2e,wx,7.5,wz);b.box(2.9,0.8,0.05,C.glass,wx,8.6,wz+1.42);b.box(3.4,0.25,3.4,0x6b2a22,wx,9.7,wz);
+ b.box(6,2.6,2.4,0x7d8a94,wx-1,0,wz+5);labelZone('watch','Вышка-будка',new V3(wx,11.5,wz))}
+{const b=world,R=0x8a4b2f;b.box(0.2,2.2,22,0x6b1f24,WX(128),0,WZ(12));
+ for(const z of[2,22])b.at(WX(138),WZ(z),0,()=>{b.box(0.5,9,0.5,R,-4,0,0,0,0,0.2);b.box(0.5,9,0.5,R,4,0,0,0,0,-0.2);b.box(9,0.6,0.6,R,0,8.6,0)});
+ b.box(1,1.2,24,R,WX(138),9.2,WZ(12));b.box(2,1.8,2,0x8a6a4a,WX(139),7.6,WZ(20));labelZone('gantry2','Ржавый козловой кран (не наш)',new V3(WX(138),12,WZ(12)))}
+INFO.tcrane={tag:'Соседи',title:'Башенный кран на ЖД',text:'Стоит на рельсах вдоль контейнеров — чёрная линия на вашем скрине 2ГИС. Виден на фото 1543, 1857, 1858.',ask:['Кран ваш или контейнерщиков?']};
+INFO.watch={tag:'Соседи',title:'Вышка-будка и бытовка',text:'Красная будка на высоких ногах и серая бытовка у контейнеров (фото 1549, 1550, 1860). Место на карте примерное.',ask:[]};
+INFO.gantry2={tag:'Соседи',title:'Ржавый козловой кран',text:'Стоит за бордовым забором у контейнеров (фото 1550, 1861). Место на карте примерное: восточнее ЛГЦ.',ask:['Это кран контейнерщиков? Где точно проходит бордовый забор?']};
 // склад у отдела продаж: два 5-тонных контейнера (из видео-обхода, 2:56)
-zone('cont5','Склад · два контейнера 5 т',mp([48,38.5,54.5,46.5]),0xd2ccc0,(b,r)=>{
+zone('cont5','Склад · два контейнера 5 т',mp([50,38.5,56.5,46.5]),0xd2ccc0,(b,r)=>{
  for(let i=0;i<2;i++){const x=(r.x1+r.x2)/2,z=r.z1+2+i*3.6;b.box(2.65,2.4,2.1,i?0x2e6da4:0xe8e8e4,x,0,z);
   for(let s=-1.1;s<=1.1;s+=0.37)b.box(0.05,2.2,2.16,i?0x285f90:0xd0d0cc,x+s,0.1,z)}},false);
 // мусорка у сборки, поддоны, мелочь на территории
@@ -690,9 +762,11 @@ for(let i=0;i<14;i++)world.box(1.2,0.14,1.0,C.wood,X(600+rnd()*14),i%3*0.15,Z(30
 /* ---------- козловой кран ---------- */
 const craneZ1=Z(94),craneZ2=Z(170);
 world.box(X(600)-X(140),0.18,0.25,0x4a4e53,(X(140)+X(600))/2,0,craneZ1);world.box(X(600)-X(140),0.18,0.25,0x4a4e53,(X(140)+X(600))/2,0,craneZ2);
-labelZone('crane','Рельсы козлового крана',new V3(X(170),0.6,craneZ1));
+labelZone('crane','ЖД-тупик и рельсы козлового крана',new V3(X(170),0.6,craneZ1));
+{const cz=(craneZ1+craneZ2)/2,L=X(600)-X(140),cx=(X(140)+X(600))/2;world.box(L,0.12,3.2,0xa39b8f,cx,0,cz);for(let x=X(140);x<X(600);x+=1)world.box(0.25,0.1,2.6,0x6b5643,x,0.12,cz);
+ world.box(L,0.16,0.12,0x5f6368,cx,0.22,cz-0.76);world.box(L,0.16,0.12,0x5f6368,cx,0.22,cz+0.76)}
 const crane=new THREE.Group();scene.add(crane);
-{const b=new Batch(),span=craneZ2-craneZ1,cz=(craneZ1+craneZ2)/2,H=10,Y=0xf2c230,D=0x2b2b2b;
+{const b=new Batch(),span=craneZ2-craneZ1,cz=(craneZ1+craneZ2)/2,H=10,Y=0x7f9a8c,D=0x2b2b2b;
  for(const z of[craneZ1,craneZ2]){b.box(4,0.8,0.9,D,0,0,z);b.box(0.5,H,0.5,Y,-1.6,0.8,z,0,0,0.12);b.box(0.5,H,0.5,Y,1.6,0.8,z,0,0,-0.12);b.box(4.2,0.6,0.7,Y,0,H*0.45,z)}
  b.box(0.7,1.1,span+3,Y,-0.6,H+0.6,cz);b.box(0.7,1.1,span+3,Y,0.6,H+0.6,cz);b.box(2.2,1.6,1.8,0xe8e8e8,1.8,H-0.4,craneZ2-1.5);b.box(1.6,0.8,0.05,C.glass,1.8,H+0.2,craneZ2-2.42);
  b.build(crane)}
@@ -725,7 +799,7 @@ function forklift(){const g=new THREE.Group(),b=new Batch();
  b.box(0.45,0.62,0.3,0xe4782e,-0.15,0.95,0);b.ball(0.17,0.17,0.17,0xf0c6a0,-0.15,1.45,0);
  frame(b,1.6,0,Math.PI/2,C.black,0.25,2.4,1.1);b.build(g);scene.add(g);return g}
 const PP=a=>a.map(([x,z])=>PM(x,z));
-pathMover(forklift(),PP([[-29,20],[-29,65.9],[64,65.9],[63.2,33.9],[57.6,25.1],[10.4,24],[0,15.5],[-15,14],[-29,20]]),3.2,{1:4,3:3});
+pathMover(forklift(),PP([[-26.4,20],[-26.4,65.9],[64,65.9],[63.2,33.9],[57.6,25.1],[10.4,24],[0,15.5],[-15,14],[-26.4,20]]),3.2,{1:4,3:3});
 pathMover(forklift(),PP([[-15,10],[-15,-42],[130,-42],[134.4,-6.1],[128,17.9],[57.6,25.1],[10.4,24],[0,15.5],[-15,10]]),2.8,{1:5,2:4});
 function truck(col){const g=new THREE.Group(),b=new Batch();
  b.box(2.3,2.5,2.4,col,4.9,0.5,0);b.box(0.05,0.9,2.0,C.glass,6.06,1.8,0);b.box(10,0.3,2.45,0x555b61,-0.6,0.9,0);
@@ -756,28 +830,29 @@ function flow(ptsPx,color,n){
  anims.push((dt,t)=>{if(!flowGroup.visible)return;for(let k=0;k<n;k++){const s=((t*6+k*L/n)%L);let i=0;while(i<seg.length-1&&s>seg[i][0]+seg[i][1])i++;
   pucks[k].position.lerpVectors(P[i],P[i+1],(s-seg[i][0])/seg[i][1]);pucks[k].scale.setScalar(Math.max(0.22,Math.min(1.2,1.4/camS.zoom)))}})}
 const flowM=(p,c,n)=>flow(p.map(([x,z])=>[MX(x),MZ(z)]),c,n);
-flowM([[-35,19],[-55,30],[-55,44],[-36,46],[-29,46],[-29,20],[-15,14],[-6,5],[-18,30],[-10,45],[0,58],[12,44],[35,58],[10,74]],0xc9773a,9);
-flowM([[-55,44],[-29,46],[-29,20],[-15,14],[-15,-27],[110,-27],[134.4,-6.1],[128,17.9],[57.6,25.1],[20,30],[12,44],[64,45],[69,45]],0xf2c230,8);
+flowM([[-33,19],[-55,30],[-55,44],[-33,46],[-26.4,46],[-26.4,20],[-15,14],[-6,5],[-18,30],[-10,45],[0,58],[12,44],[35,58],[10,74]],0xc9773a,9);
+flowM([[-55,44],[-26.4,46],[-26.4,20],[-15,14],[-15,-27],[110,-27],[134.4,-6.1],[128,17.9],[57.6,25.1],[20,30],[12,44],[64,45],[69,45]],0xf2c230,8);
 flowM([[190,100],[158,100],[150,82],[140,72],[128,65.9],[125.6,33.9],[134.4,-6.1],[110,-27]],0xf2c230,3);
 
 /* ---------- данные для карточек ---------- */
 Object.assign(INFO,{
- b1:{tag:'Корпус',title:'Цех 1 · корпус 6/1',text:'Улица Айвазовского, 6/1. По 2ГИС ≈21×63 м. Внутри по схеме, с севера на юг: сварка осей и трапов, резка, сварка рам (рядом склады осей и крупного), Сборка 1, офис. Кирпичное крыльцо у офиса. У северо-восточного угла маленький склад запчастей для сварки из ЛГЦ.',ask:['В этом корпусе ещё есть «Планета фанеры 24». Какая часть корпуса ваша?']},
+ b1:{tag:'Корпус',title:'Цех 1 · корпус 6/1',text:'Улица Айвазовского, 6/1. По 2ГИС ≈23×62 м (OSM даёт 19×54). Стены из серого профлиста, внизу кирпич. Внутри по схеме, с севера на юг: сварка осей и трапов, резка, сварка рам, Сборка 1, в южном торце кирпичный 2-этажный офис 1 с аркой «Отдел продаж» и табличкой УПТК. К восточной стене примыкают две пристройки с 2ГИС: маленькая северная (склад от ЛГЦ для сварки) и длинная средняя (склад осей, трапов и крупного).',ask:['В средней пристройке на 2ГИС стоит метка «Планета фанеры 24». Пристройка ваша, это и есть склад осей и трапов?','Где внутри цеха границы участков: резка, сварка, Сборка 1?']},
+ b1o:{tag:'Офис',title:'Офис 1 · отдел продаж',text:'Кирпичное 2-этажное здание в южном торце цеха 1. На восточной стене кирпичная арка «ALASKA · Отдел продаж», вывеска «Красноярский завод прицепов», табличка УПТК (фото 1709). Отсюда начинается видео-обход.',ask:['Отдел продаж сидит здесь или в торце корпуса 6 ст1, или в обоих местах?']},
  b1a:{tag:'Склад',title:'Склад осей, трапов и крупного',text:'Отдельное оцинкованное здание впритык к восточной стене цеха 1, рядом с заготовкой металла и сваркой рамы.',ask:[]},
  b1c:{tag:'Склад',title:'Склад запчастей для сварки из ЛГЦ',text:'Маленький склад у торца цеха 1.',ask:[]},
  b2a:{tag:'Корпус',title:'Корпус 6 ст1',text:'По 2ГИС и вашим подписям: на севере песко и узкое крыло «Тента», южнее маляр, цех 2 (Сборка 2), на восточном торце офис и отдел продаж со входом с востока.',ask:[]},
  b2b:{tag:'Корпус',title:'Корпус 6 ст1',text:'Маляр, цех 2 (Сборка 2), мини-склад, офис и отдел продаж на восточном торце, вход с востока.',ask:['Здание целиком ваше?']},
  b3:{tag:'Склад',title:'Склад комплектующих',text:'Красный, по линейке 2ГИС ≈49×14 м. Колёса, оси, фонари, крепёж для сборки (пока предполагаю).',ask:['Что именно лежит на этом складе?','Кто выдаёт комплектующие на сборку и как это учитывается?']},
  b4:{tag:'Цех',title:'ЛГЦ',text:'Отмечен жёлтым на схеме. Отсюда заготовки идут на склад «от ЛГЦ для сварки» в корпусе 6/1.',ask:['Как расшифровывается ЛГЦ и что в нём делают: лазер, гибка, штамповка?','Какие детали ЛГЦ отдаёт в сварку и сколько?']},
- b6:{tag:'Не наше',title:'Не наше здание',text:'На схеме перечёркнуто. В игре его крыша не снимается.',ask:[]},
- b7:{tag:'Цех',title:'Чёрный цех · корпус 6/2',text:'Большое здание 6/2 восточнее контейнеров, по 2ГИС ≈119×109 м. Труборез и сварка рам на цинк.',ask:['Какая часть корпуса 6/2 ваша?','Рамы на цинк варят только здесь, или в корпусе 6/1 тоже?']},
- zap:{tag:'Склад',title:'Склад запчастей',text:'Внизу территории, у зоны отправки.',ask:['Это запчасти для продажи клиентам или для своего оборудования?']},
+ b6:{tag:'Не наше',title:'Не наше · красный ангар',text:'Красный ангар южнее ЛГЦ, у западного торца киоск «Автомасла» за чёрным забором (видео 2:21, фото 1561). Не ваше, поэтому закрыто для игры. Длина 40 м по 2ГИС, глубина 12 м по OSM.',ask:['Ряд гаражей по плану Excel стоит сразу под этим зданием и ещё один у южного забора. Где именно верхний ряд?']},
+ b7:{tag:'Цех',title:'Чёрный цех · корпус 6/2',text:'Большое здание 6/2 восточнее контейнеров, по 2ГИС ≈109×98 м, повёрнуто на 6° относительно западных корпусов. Труборез и сварка рам на цинк.',ask:['Какая часть корпуса 6/2 ваша?','Рамы на цинк варят только здесь, или в корпусе 6/1 тоже?']},
+ zap:{tag:'Склад',title:'Склад запчастей',text:'По плану в Excel — нижняя полоса под «Батонами», вдоль южного забора. На фото 1746 слева — длинное низкое серое здание. Длина и точное место примерные.',ask:['Это запчасти для продажи клиентам или для своего оборудования?','Склад запчастей тянется до какого места вдоль забора?']},
  weldAx:{tag:'Сварка',title:'Сварка осей, трапов, каркасов тента',text:'Участок в верхней части корпуса 6/1. Рядом склад «оси, трапы».',ask:['Оси свои или покупные, здесь их только доваривают?','Это та же бригада, что варит рамы?']},
  cut:{tag:'Шаг 1',title:'Приёмка и резка металла',text:'Начало цепочки. Сюда приходит металл, его принимают и режут на заготовки для рам.',ask:['Какой металл приходит: профильная труба, швеллер, лист? От кого и как часто?','Чем режете: ленточная пила, плазма, гильотина?','Сколько комплектов заготовок режете за смену?']},
  weld:{tag:'Шаг 2',title:'Сварка рамы',text:'Из заготовок варят раму. Дальше рама идёт одним из двух путей: на пескоструй и покраску, или на улицу ждать отгрузки в цинк.',ask:['Сколько сварочных постов и сварщиков?','Сколько времени уходит на одну раму?','Кто решает, какая рама пойдёт в цинк, а какая в покраску? Это зависит от модели прицепа?']},
  asm1:{tag:'Шаг 5',title:'Сборка 1',text:'Первый участок сборки, в корпусе 6/1.',ask:['Чем Сборка 1 отличается от Сборки 2: разные модели, разные бригады?','Что ставится на раму и в каком порядке: ось, колёса, пол, борта, свет, тент?','Сколько прицепов собирается за день?']},
  asm2:{tag:'Шаг 5',title:'Сборка 2',text:'Второй участок сборки, в корпусе 6 ст1, рядом с маляркой и мини-складом.',ask:['Сколько прицепов собирается здесь за день?','Сколько человек на сборке?']},
- off1:{tag:'Офис',title:'Офис',text:'Внизу корпуса 6/1.',ask:['Кто сидит в офисе: продажи, снабжение, бухгалтерия, мастер?']},
+ off1:{tag:'Офис',title:'Офис 1',text:'Кирпичный 2-этажный офис в южном торце цеха 1: коридоры, кабинеты, лестница (фото 1729–1743).',ask:['Кто сидит в офисе: продажи, снабжение, бухгалтерия, мастер?']},
  cont5:{tag:'Склад',title:'Склад · два контейнера 5 т',text:'По видео-обходу: у отдела продаж склад из двух 5-тонных контейнеров.',ask:['Что хранится в этих контейнерах?']},
  off2:{tag:'Офис',title:'Офис · отдел продаж',text:'Восточный торец корпуса 6 ст1, вход с востока.',ask:['Кто работает в отделе продаж?']},
  whLgc:{tag:'Склад',title:'Склад от ЛГЦ для сварки',text:'Заготовки из ЛГЦ лежат здесь, пока их не заберут в сварку.',ask:[]},
@@ -789,10 +864,10 @@ Object.assign(INFO,{
  mini:{tag:'Склад',title:'Мини-склад',text:'Небольшой склад у Сборки 2.',ask:['Что лежит в мини-складе: крепёж, свет, проводка?']},
  whKit:{tag:'Склад',title:'Склад комплектующих',text:'Колёса, оси, фонари, крепёж для сборки (пока предполагаю).',ask:['Что именно лежит на этом складе?']},
  b4:{tag:'Цех',title:'ЛГЦ',text:'По линейке 2ГИС ≈38×12 м, в 25 м восточнее склада комплектующих. Рядом строится второй цех, уже выглядит как ЛГЦ.',ask:[]},
- b5:{tag:'Стройка',title:'Строящийся цех',text:'Между ЛГЦ и «не нашим» зданием, по вашей подписи на 2ГИС. Размер примерный.',ask:['Какой размер у нового цеха и что в нём будет?']},
+ b5:{tag:'Стройка',title:'Строящийся цех',text:'Новый оцинкованный ангар с секционными воротами рядом с ЛГЦ (фото 1562, 1568). На картах его ещё нет, поэтому длина условная: как у ЛГЦ.',ask:['Какой длины новый цех и что в нём будет?']},
  lgc:{tag:'Цех',title:'ЛГЦ',text:'Пока поставил условные станки: лазер и листогиб.',ask:['Как расшифровывается ЛГЦ и какое там оборудование?']},
  black:{tag:'Цех',title:'Труборез и рамы на цинк',text:'По схеме: «Чёрный цех, труборез и варят рамы на цинк».',ask:['Где точно стоит этот цех?']},
- constr:{tag:'Стройка',title:'Стройка цеха ЛГЦ 2',text:'Строится второй цех ЛГЦ.',ask:['Что будет в новом цехе и когда он запустится?']},
+ constr:{tag:'Стройка',title:'Строящийся цех',text:'Внутри пока пусто.',ask:['Что будет в новом цехе и когда он запустится?']},
  boat:{tag:'Хранение',title:'Прицепы: лодочные / для Маслова / долгие',text:'По схеме: «непонятно какие прицепы здесь хранятся, иногда лодочные, иногда для Маслова, иногда долгие на распределении».',ask:['Кто такой Маслов: дилер, магазин, крупный клиент?','Что значит «долгие на распределении»: прицепы, которые давно ждут покупателя?']},
  blackFrames:{tag:'Цинк',title:'Чёрные рамы ждут отгрузки в цинк',text:'Сваренные рамы и трапы, которые поедут на цинкование.',ask:['Цинкуете на стороне? Где и сколько дней рамы в пути туда и обратно?']},
  aiva:{tag:'Готовое',title:'Готовые прицепы Айвазовского на розницу',text:'Площадка готовых прицепов для розничного магазина.',ask:['«Айвазовского» это адрес вашего магазина?','Сколько прицепов туда уходит в неделю?']},
@@ -807,7 +882,7 @@ Object.assign(INFO,{
  ready1:{tag:'Готовое',title:'Собранные прицепы для клиентов',text:'Площадка готовой продукции справа внизу.',ask:[]},
  ready2:{tag:'Готовое',title:'Собранные прицепы для клиентов',text:'Площадка между дорогой и чужим зданием.',ask:[]},
  containers:{tag:'Соседи',title:'Контейнерщики',text:'Правая часть территории занята контейнерами.',ask:['Контейнеры ваши, или это арендаторы, которые к заводу не относятся?']},
- crane:{tag:'Оборудование',title:'Козловой кран',text:'Ездит по рельсам над зоной цинка: грузит чёрные рамы на машину и снимает оцинкованные.',ask:['Какая грузоподъёмность и сколько рам берёт за раз?']},
+ crane:{tag:'Оборудование',title:'Козловой кран над ЖД-тупиком',text:'Серо-зелёный козловой кран над железнодорожным тупиком, по бокам стопки оцинкованных рам (фото 1583, 1587). Ездит вдоль тупика: грузит чёрные рамы и снимает оцинкованные. Где именно тупик на северной площадке, на картах не видно.',ask:['Какая грузоподъёмность и сколько рам берёт за раз?']},
 });
 
 /* ---------- подписи ---------- */
@@ -817,7 +892,7 @@ function mkLabel(kind,text,step,id){const el=document.createElement('div');el.cl
 /* ---------- камера ---------- */
 const camS={tx:X(300),tz:Z(300),az:0.62,zoom:1,el:0.66};
 const camT={...camS};
-const home={tx:WX(55),tz:WZ(25),az:0.62,zoom:innerWidth<innerHeight?0.42:0.52};
+const home={tx:WX(60),tz:WZ(30),az:0.62,el:0.66,zoom:innerWidth<innerHeight?0.42:0.52};
 Object.assign(camS,home);Object.assign(camT,home);
 function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h);cam.userData.aspect=w/h;}
 addEventListener('resize',resize);resize();
@@ -829,6 +904,16 @@ function panBy(dx,dy){const wpp=viewH()/camS.zoom/innerHeight,az=camS.az;
  const rx=Math.cos(az),rz=-Math.sin(az),fx=-Math.sin(az),fz=-Math.cos(az),k=1/Math.sin(camS.el);
  camT.tx+=-rx*dx*wpp+fx*dy*wpp*k;camT.tz+=-rz*dx*wpp+fz*dy*wpp*k;clampT();camS.tx=camT.tx;camS.tz=camT.tz}
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),ground=new THREE.Plane(new V3(0,1,0),0);
+/* вид с земли: камера на высоте глаз в точке съёмки фото, угол обзора как у iPhone (24 мм ≈ 72°, 14 мм ≈ 102° по ширине) */
+const pcam=new THREE.PerspectiveCamera(60,1,0.3,3000);let GV=null,phOv=0;const RCAM=()=>GV?pcam:cam;
+function gvApply(){const a=innerWidth/innerHeight;pcam.aspect=a;pcam.fov=2*Math.atan(Math.tan(GV.h/2)/Math.max(a,1))*180/Math.PI;pcam.position.set(GV.x,1.6,GV.z);
+ pcam.lookAt(GV.x+Math.cos(GV.pitch)*Math.cos(GV.yaw),1.6+Math.sin(GV.pitch),GV.z-Math.cos(GV.pitch)*Math.sin(GV.yaw));pcam.updateProjectionMatrix()}
+function gvSet(i){const n=PLAN.viewpoints.length;i=(i+n)%n;const v=PLAN.viewpoints[i],dx=v.look[0]-v.pos[0],dz=v.look[1]-v.pos[1];
+ GV={i,x:WX(v.pos[0]),z:WZ(v.pos[1]),yaw:Math.atan2(-dz,dx),pitch:0.03,h:2*Math.atan(17.3/v.f35)};
+ const src=window.REF_PHOTOS&&window.REF_PHOTOS[v.photo];$('#photo').hidden=false;$('#gv').classList.add('on');
+ $('#phTitle').textContent=v.title;$('#phMeta').textContent=v.photo+' · '+v.time+' · '+v.f35+' мм'+(src?' · точка съёмки оценена, ±5 м':' · само фото есть в закрытой версии');
+ $('#phImg').hidden=!src;$('#phOv').hidden=!src;if(src){$('#phImg').src=src;$('#phOver').src=src}$('#phOver').hidden=!(src&&phOv);buildings.forEach(b=>b.open=false)}
+function gvExit(){GV=null;$('#photo').hidden=true;$('#phOver').hidden=true;$('#gv').classList.remove('on')}
 function groundAt(cx,cy){ndc.set(cx/innerWidth*2-1,-(cy/innerHeight)*2+1);applyCam();ray.setFromCamera(ndc,cam);const p=new V3();ray.ray.intersectPlane(ground,p);return p}
 function zoomAt(f,cx,cy){const before=groundAt(cx,cy);camT.zoom*=f;clampT();camS.zoom=camT.zoom;const after=groundAt(cx,cy);
  camT.tx+=before.x-after.x;camT.tz+=before.z-after.z;clampT();camS.tx=camT.tx;camS.tz=camT.tz}
@@ -842,22 +927,34 @@ cv.addEventListener('pointermove',e=>{const p=ptrs.get(e.pointerId);if(!p)return
  if(ptrs.size===2&&pinch){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y),mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
   const ang=Math.atan2(b.y-a.y,b.x-a.x);let da=ang-pinch.ang;da=Math.atan2(Math.sin(da),Math.cos(da));
   zoomAt(d/pinch.d,mx,my);panBy(mx-pinch.mx,my-pinch.my);if(Math.abs(da)<0.3){camT.az+=da;camS.az=camT.az}pinch={d,mx,my,ang};moved+=99;return}
+ if(GV){GV.yaw+=dx*0.003;GV.pitch=Math.max(-1.2,Math.min(1.2,GV.pitch+dy*0.003));return}
  if(rot){camT.az-=dx*0.006;camS.az=camT.az;return}
  panBy(dx,dy)});
 const up=e=>{ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(ptrs.size===0){cv.classList.remove('drag');if(moved<6&&down&&e.type==='pointerup')pickAt(e.clientX,e.clientY)}};
 cv.addEventListener('pointerup',up);
 const tip=document.getElementById('tip');
-function workerAt(cx,cy){ndc.set(cx/innerWidth*2-1,-(cy/innerHeight)*2+1);ray.setFromCamera(ndc,cam);const h=ray.intersectObjects(workerMeshes.filter(m=>m.parent.visible),false)[0];return h&&h.object.userData.w}
+function workerAt(cx,cy){ndc.set(cx/innerWidth*2-1,-(cy/innerHeight)*2+1);ray.setFromCamera(ndc,RCAM());const h=ray.intersectObjects(workerMeshes.filter(m=>m.parent.visible),false)[0];return h&&h.object.userData.w}
 function showTip(w,cx,cy){tip.hidden=false;tip.innerHTML=`<b>${w.name||w.role}</b><span>${w.name?w.role:'Имя уточню у вас'}</span><ul>${w.fn.map(f=>'<li>'+f+'</li>').join('')}</ul>`;
  const x=Math.min(cx+16,innerWidth-250),y=Math.min(cy+16,innerHeight-tip.offsetHeight-10);tip.style.left=x+'px';tip.style.top=y+'px'}
 cv.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse'||ptrs.size)return;const w=workerAt(e.clientX,e.clientY);if(w){showTip(w,e.clientX,e.clientY);cv.style.cursor='help'}else{tip.hidden=true;cv.style.cursor=''}});cv.addEventListener('pointercancel',up);
-cv.addEventListener('wheel',e=>{e.preventDefault();hideHint();zoomAt(Math.exp(-e.deltaY*0.0016),e.clientX,e.clientY)},{passive:false});
+cv.addEventListener('wheel',e=>{e.preventDefault();hideHint();if(GV){GV.h=Math.max(0.3,Math.min(2.2,GV.h*Math.exp(e.deltaY*0.001)));return}zoomAt(Math.exp(-e.deltaY*0.0016),e.clientX,e.clientY)},{passive:false});
 addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(e.target.tagName==='INPUT')return;
  if(k==='arrowleft'||k==='a')panBy(60,0);if(k==='arrowright'||k==='d')panBy(-60,0);if(k==='arrowup'||k==='w')panBy(0,60);if(k==='arrowdown'||k==='s')panBy(0,-60);
- if(k==='q')camT.az+=Math.PI/2;if(k==='e')camT.az-=Math.PI/2;if(k==='+'||k==='=')camT.zoom*=1.35;if(k==='-')camT.zoom/=1.35;if(k==='escape')closeInfo();clampT()});
+ if(k==='q')camT.az+=Math.PI/2;if(k==='e')camT.az-=Math.PI/2;if(k==='+'||k==='=')camT.zoom*=1.35;if(k==='-')camT.zoom/=1.35;if(k==='escape'){closeInfo();gvExit()}clampT()});
 $('#zin').onclick=()=>{camT.zoom*=1.4;clampT()};$('#zout').onclick=()=>{camT.zoom/=1.4;clampT()};
 $('#rl').onclick=()=>{camT.az+=Math.PI/2};$('#rr').onclick=()=>{camT.az-=Math.PI/2};
-$('#home').onclick=()=>{Object.assign(camT,{tx:home.tx,tz:home.tz,zoom:home.zoom});buildings.forEach(b=>b.open=false)};
+$('#home').onclick=()=>{Object.assign(camT,{tx:home.tx,tz:home.tz,zoom:home.zoom,el:home.el});$('#top').classList.remove('on');buildings.forEach(b=>b.open=false)};
+/* вид сверху: экран повёрнут так же, как ваш скриншот 2ГИС (север на 15° правее верха) */
+const TOP_EL=1.5607;function setTop(on){$('#top').classList.toggle('on',on);if(on)Object.assign(camT,{az:0,el:TOP_EL,tx:WX(150),tz:WZ(70),zoom:innerWidth<innerHeight?0.32:0.4});else Object.assign(camT,{el:home.el,az:home.az})}
+$('#top').onclick=()=>{gvExit();setTop(!$('#top').classList.contains('on'))};
+$('#gv').onclick=()=>GV?gvExit():gvSet(0);$('#phPrev').onclick=()=>gvSet(GV.i-1);$('#phNext').onclick=()=>gvSet(GV.i+1);$('#phX').onclick=gvExit;
+$('#phOv').onclick=()=>{phOv=(phOv+1)%3;$('#phOver').hidden=!phOv;$('#phOver').style.opacity=phOv===2?1:0.5;$('#phOv').classList.toggle('on',!!phOv);$('#phOv').textContent=['Наложить фото','Фото 50%','Фото 100%'][phOv]};
+/* подложка: ваш скриншот 2ГИС, привязанный по plan.json (есть только в закрытом превью) */
+if(window.REF_2GIS){const [x1,z1,x2,z2]=PLAN.underlay_2gis.r,tex=new THREE.TextureLoader().load(window.REF_2GIS);
+ const mat=new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity:1,depthWrite:false});const pl=new THREE.Mesh(new THREE.PlaneGeometry(x2-x1,z2-z1),mat);
+ pl.rotation.x=-Math.PI/2;pl.position.set(WX((x1+x2)/2),0.2,WZ((z1+z2)/2));pl.renderOrder=20;pl.visible=false;scene.add(pl);
+ let rm=0;const names=['Подложка 2ГИС: нет','Подложка 2ГИС: под зданиями','Подложка 2ГИС: поверх, 50%'];$('#ref').hidden=false;
+ $('#ref').onclick=()=>{rm=(rm+1)%3;pl.visible=rm>0;mat.opacity=rm===2?0.5:1;mat.depthTest=rm!==2;$('#refTip').textContent=names[rm];$('#ref').classList.toggle('on',rm>0);if(rm&&!$('#top').classList.contains('on'))setTop(true)}}
 let roofMode=0;const roofNames=['Крыши: авто','Крыши сняты','Крыши на месте'];
 $('#roof').onclick=()=>{roofMode=(roofMode+1)%3;$('#roofTip').textContent=roofNames[roofMode];$('#roof').classList.toggle('on',roofMode===1);$('#roof').setAttribute('aria-label',roofNames[roofMode]);buildings.forEach(b=>b.open=false)};
 $('#flow').onclick=()=>{flowGroup.visible=!flowGroup.visible;$('#flow').classList.toggle('on',flowGroup.visible)};
@@ -867,7 +964,7 @@ let hintT=null;if(MOBILE)$('#hint').textContent='Один палец двига�
 function hideHint(){if(hintT)return;hintT=setTimeout(()=>{$('#hint').style.opacity=0},2500)}
 
 /* ---------- клики, карточки ---------- */
-function pickAt(cx,cy){const wk=workerAt(cx,cy);if(wk){showTip(wk,cx,cy);return}tip.hidden=true;ndc.set(cx/innerWidth*2-1,-(cy/innerHeight)*2+1);ray.setFromCamera(ndc,cam);
+function pickAt(cx,cy){const wk=workerAt(cx,cy);if(wk){showTip(wk,cx,cy);return}tip.hidden=true;ndc.set(cx/innerWidth*2-1,-(cy/innerHeight)*2+1);ray.setFromCamera(ndc,RCAM());
  const cand=hits.filter(m=>m.visible&&(!m.material.transparent||m.material.opacity>0.5)&&(m.parent?m.parent.visible:true));
  const h=ray.intersectObjects(cand,false)[0];if(!h){closeInfo();return}
  const id=h.object.userData.id;const b=buildings.find(x=>x.cfg.id===id);
@@ -875,6 +972,7 @@ function pickAt(cx,cy){const wk=workerAt(cx,cy);if(wk){showTip(wk,cx,cy);return}
  openInfo(id)}
 INFO.b1n=INFO.b1s=INFO.b1;
 function openInfo(id){const d=INFO[id];if(!d)return;$('#info').hidden=false;$('#iTag').textContent=d.tag;$('#iTitle').textContent=d.title;$('#iText').textContent=d.text;
+ const pb=PLAN.buildings[id],sp=$('#iSrc');sp.hidden=!pb;if(pb){const [x1,z1,x2,z2]=pb.r,f=v=>String(+v.toFixed(1)).replace('.',',');sp.textContent=`План: ${f(x2-x1)} × ${f(z2-z1)} м, высота ${f(pb.h)} м. Источник: ${pb.src}.`}
  const ul=$('#iAsk');ul.innerHTML='';(d.ask||[]).forEach(q=>{const li=document.createElement('li');li.textContent=q;ul.appendChild(li)});$('#iAskH').hidden=!(d.ask&&d.ask.length)}
 function closeInfo(){$('#info').hidden=true}
 $('#infoX').onclick=closeInfo;
@@ -894,11 +992,12 @@ const CUT_ZOOM=2.1;let last=performance.now(),simMin=8*60;
 const tmp=new V3();
 function frameLoop(now){
  const dt=Math.min(0.05,(now-last)/1000);last=now;const t=now/1000;
- const k=Math.min(1,dt*7);camS.zoom+=(camT.zoom-camS.zoom)*k;camS.tx+=(camT.tx-camS.tx)*k;camS.tz+=(camT.tz-camS.tz)*k;camS.az+=(camT.az-camS.az)*k;applyCam();
+ const k=Math.min(1,dt*7);camS.zoom+=(camT.zoom-camS.zoom)*k;camS.tx+=(camT.tx-camS.tx)*k;camS.tz+=(camT.tz-camS.tz)*k;camS.az+=(camT.az-camS.az)*k;camS.el+=(camT.el-camS.el)*k;applyCam();
  for(const b of buildings){
-  const want=b.locked?0:(roofMode===1?1:roofMode===2?(b.open?1:0):((camS.zoom>=CUT_ZOOM||b.open)?1:0));
+  const want=b.locked||GV?0:(roofMode===1?1:roofMode===2?(b.open?1:0):((camS.zoom>=CUT_ZOOM||b.open)?1:0));
   b.c+=(want-b.c)*Math.min(1,dt*6);if(Math.abs(want-b.c)<0.002)b.c=want;
   b.walls.scale.y=1-0.9*b.c;if(b.roof){b.roof.material.opacity=1-b.c;b.roof.visible=b.c<0.97;b.roof.castShadow=b.c<0.5}}
+ if(GV)gvApply();
  for(const f of anims)f(dt,t);stepWorkers(dt,t);
  for(const [m,s] of ptMats)m.size=Math.max(2,s*camS.zoom*2.2)*Math.min(devicePixelRatio,2)/1.5;
  // подписи
@@ -909,13 +1008,17 @@ function frameLoop(now){
   else if(L.kind==='b')vis=!L.b||L.b.c<0.4;
   else if(L.kind==='p')vis=L.b&&L.b.c>0.6&&camS.zoom>2.6;
   else vis=camS.zoom>1.3;
-  p.project(cam);const x=(p.x*0.5+0.5)*W,y=(-p.y*0.5+0.5)*H;
+  if(GV&&L.kind!=='b')vis=false;
+  p.project(RCAM());if(p.z>1)vis=false;const x=(p.x*0.5+0.5)*W,y=(-p.y*0.5+0.5)*H;
   if(x<-120||x>W+120||y<-40||y>H+40)vis=false;
   L.el.classList.toggle('hide',!vis);if(vis)L.el.style.transform=`translate(${x|0}px,${y|0}px) translate(-50%,-100%)`}
+ {const a=tmp.set(camS.tx,0,camS.tz).project(cam),ax=a.x*W,ay=a.y*H;const b=tmp.set(camS.tx+PLAN.frame.north_xz[0]*30,0,camS.tz+PLAN.frame.north_xz[1]*30).project(cam);
+  $('#needle').style.transform=`rotate(${GV?GV.yaw-Math.atan2(-PLAN.frame.north_xz[1],PLAN.frame.north_xz[0]):Math.atan2(b.x*W-ax,b.y*H-ay)}rad)`}
  simMin+=dt*2;const hh=Math.floor(simMin/60)%24,mm=Math.floor(simMin%60);$('#clock').firstChild.nodeValue=String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
- renderer.render(scene,cam);requestAnimationFrame(frameLoop)}
+ renderer.render(scene,RCAM());requestAnimationFrame(frameLoop)}
 // пометить подписи, по которым есть вопросы
 for(const L of labels){const d=INFO[L.el.dataset.id];if(d&&d.ask&&d.ask.length)L.el.classList.add('q')}
+const hs=decodeURIComponent(location.hash.slice(1));if(hs==='top')setTop(true);else if(hs.startsWith('photo'))gvSet(+hs.slice(5)||0);else if(hs)focusRoom(hs);
 requestAnimationFrame(frameLoop);
 })();
 </script>
