@@ -1224,7 +1224,7 @@ function frameLoop(now){
  for(const f of anims)f(dt,t);stepWorkers(dt,t);
  for(const [m,s] of ptMats)m.size=Math.max(2,s*camS.zoom*2.2)*Math.min(devicePixelRatio,2)/1.5;
  // подписи
- const W=innerWidth,H=innerHeight;
+ const W=innerWidth,H=innerHeight,gIn=GV&&buildings.find(b=>!b.cfg.rot&&GV.x>b.r.x1&&GV.x<b.r.x2&&GV.z>b.r.z1&&GV.z<b.r.z2);   // вид с земли изнутри цеха
  for(const L of labels){const p=L.obj?tmp.copy(L.obj.position).add(L.off):tmp.copy(L.p);
   let vis=true;
   if(L.kind==='r')vis=L.b&&L.b.c>0.6&&camS.zoom>1.5;
@@ -1232,6 +1232,7 @@ function frameLoop(now){
   else if(L.kind==='p')vis=L.b&&L.b.c>0.6&&camS.zoom>2.6;
   else vis=camS.zoom>1.3;
   if(GV&&L.kind!=='b')vis=false;
+  if(gIn)vis=L.b===gIn&&L.kind==='p';   // внутри видны только подписи станков этого цеха, без соседних зданий сквозь стены
   p.project(RCAM());if(p.z>1)vis=false;const x=(p.x*0.5+0.5)*W,y=(-p.y*0.5+0.5)*H;
   if(x<-120||x>W+120||y<-40||y>H+40)vis=false;
   L.el.classList.toggle('hide',!vis);if(vis)L.el.style.transform=`translate(${x|0}px,${y|0}px) translate(-50%,-100%)`}
