@@ -76,6 +76,7 @@ button:focus-visible{outline:3px solid #6c7cff;outline-offset:2px}
 .info .tag{display:inline-block;background:var(--zinc);color:#24264a;font:700 11px/1 var(--f-body);padding:4px 6px;border-radius:4px;letter-spacing:.03em}
 .info h3{margin:8px 30px 6px 0;font:400 18px/1.2 var(--f-disp);color:var(--panel);text-wrap:balance}
 .info p{margin:0 0 10px;font-size:13.5px;line-height:1.45;color:#3a3b5c}
+.info p.src{font-size:12px;color:#6a6c8c}
 .info h4{margin:12px 0 6px;font:700 11px/1 var(--f-body);color:#e2564b;text-transform:uppercase;letter-spacing:.06em}
 .info ul{margin:0;padding-left:18px;font-size:13px;line-height:1.45;color:#3a3b5c;display:flex;flex-direction:column;gap:4px}
 .x{position:absolute;right:10px;top:10px;width:28px;height:28px;border:0;border-radius:7px;background:#f0eff8;color:var(--panel);font-size:16px}
@@ -164,6 +165,7 @@ button:focus-visible{outline:3px solid #6c7cff;outline-offset:2px}
   <span class="tag" id="iTag"></span>
   <h3 id="iTitle"></h3>
   <p id="iText"></p>
+  <p id="iSrc" class="src" hidden></p>
   <h4 id="iAskH">Что хочу у вас уточнить</h4>
   <ul id="iAsk"></ul>
 </aside>
@@ -970,6 +972,7 @@ function pickAt(cx,cy){const wk=workerAt(cx,cy);if(wk){showTip(wk,cx,cy);return}
  openInfo(id)}
 INFO.b1n=INFO.b1s=INFO.b1;
 function openInfo(id){const d=INFO[id];if(!d)return;$('#info').hidden=false;$('#iTag').textContent=d.tag;$('#iTitle').textContent=d.title;$('#iText').textContent=d.text;
+ const pb=PLAN.buildings[id],sp=$('#iSrc');sp.hidden=!pb;if(pb){const [x1,z1,x2,z2]=pb.r,f=v=>String(+v.toFixed(1)).replace('.',',');sp.textContent=`План: ${f(x2-x1)} × ${f(z2-z1)} м, высота ${f(pb.h)} м. Источник: ${pb.src}.`}
  const ul=$('#iAsk');ul.innerHTML='';(d.ask||[]).forEach(q=>{const li=document.createElement('li');li.textContent=q;ul.appendChild(li)});$('#iAskH').hidden=!(d.ask&&d.ask.length)}
 function closeInfo(){$('#info').hidden=true}
 $('#infoX').onclick=closeInfo;
