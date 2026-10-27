@@ -564,14 +564,21 @@ function building(cfg){
 
 const T={cut:0xc9d3dc,weld:0xd9cbb9,sand:0xd9cfae,paint:0xc9ddcc,tent:0xd0d9ea,asm:0xe6dfcd,wh:0xd7d1c5,off:0x34a596};
 /* Здания — по 2ГИС и вашим подписям (метры от СЗ угла красного склада) */
-building({id:'b1',name:'Цех 1 · корпус 6/1',mr:[-61.5,12.6,-40.5,75.6],h:9,wall:0xe9dcbf,roof:0xc4b391,roofType:'gable',lz:MZ(30),
- doors:[{side:'e',pm:[26,31]},{side:'e',pm:[43,49]},{side:'e',pm:[56,62]},{side:'n',pm:[-58,-52]}],
- rooms:[{id:'weldAx',name:'Сварка осей, трапов, каркасов тента',mr:[-61.5,12.6,-40.5,24],type:'weldAx',tint:T.weld},
-  {id:'cut',step:1,name:'Приёмка и резка металла',mr:[-61.5,24,-48.5,37],type:'cut',tint:T.cut},
-  {id:'whAx',name:'Склад: оси, трапы',mr:[-48.5,24,-40.5,37],type:'whAx',tint:T.wh},
-  {id:'weld',step:2,name:'Сварка рамы',mr:[-61.5,37,-48.5,52],type:'weld',tint:T.weld},
-  {id:'whBig',name:'Склад крупное',mr:[-48.5,37,-40.5,52],type:'whBig',tint:T.wh},
-  {id:'asm1',step:5,name:'Сборка 1',mr:[-61.5,52,-40.5,64],type:'asm',tint:T.asm},
+building({id:'b1n',name:'Цех 1 · корпус 6/1',mr:[-61.5,12.6,-40.5,24],h:9,wall:0xe9dcbf,roof:0xc4b391,roofType:'gable',label:false,
+ doors:[{side:'n',pm:[-58,-52]}],
+ rooms:[{id:'weldAx',name:'Сварка осей, трапов, каркасов тента',type:'weldAx',tint:T.weld}]});
+building({id:'b1',name:'Цех 1 · корпус 6/1',mr:[-61.5,24,-48.5,52],h:9,wall:0xe9dcbf,roof:0xc4b391,roofType:'gable',lz:MZ(30),
+ doors:[],
+ rooms:[{id:'cut',step:1,name:'Приёмка и резка металла',mr:[-61.5,24,-48.5,37],type:'cut',tint:T.cut},
+  {id:'weld',step:2,name:'Сварка рамы',mr:[-61.5,37,-48.5,52],type:'weld',tint:T.weld}]});
+/* отдельное оцинкованное здание впритык к заготовке и сварке рамы: склады осей/трапов и крупного */
+building({id:'b1a',name:'Склад осей, трапов и крупного',mr:[-48.5,24,-40.5,52],h:6,wall:0xc9ced3,roof:0xaeb4ba,roofType:'gable',label:false,
+ doors:[{side:'e',pm:[27,32]},{side:'e',pm:[43,48]}],
+ rooms:[{id:'whAx',name:'Склад: оси, трапы',mr:[-48.5,24,-40.5,37],type:'whAx',tint:T.wh},
+  {id:'whBig',name:'Склад крупное',mr:[-48.5,37,-40.5,52],type:'whBig',tint:T.wh}]});
+building({id:'b1s',name:'Цех 1 · корпус 6/1',mr:[-61.5,52,-40.5,75.6],h:9,wall:0xe9dcbf,roof:0xc4b391,roofType:'gable',label:false,
+ doors:[{side:'e',pm:[56,62]}],
+ rooms:[{id:'asm1',step:5,name:'Сборка 1',mr:[-61.5,52,-40.5,64],type:'asm',tint:T.asm},
   {id:'off1',name:'Офис',mr:[-61.5,64,-40.5,75.6],type:'office',tint:T.off}]});
 building({id:'b1c',name:'Склад запчастей для сварки из ЛГЦ',mr:[-40.5,16,-30,22],h:5,wall:0xddd0b3,roof:0xb6a88a,label:false,
  doors:[{side:'e',pm:[17,21]}],rooms:[{id:'whLgc',name:'Склад от ЛГЦ для сварки',type:'wh',tint:T.wh}]});
@@ -605,8 +612,8 @@ building({id:'b6',name:'Не наше здание',mr:[74,28.8,114.6,49.9],h:8,
 {const r=RM(211,159,265,174);world.box(r.w,7,r.d,0xcfcac0,r.x,0,r.z);world.box(r.w+0.3,0.4,r.d+0.3,0xbdb7ab,r.x,7,r.z);
  const hm=pad('k6',r,0xcfcac0,scene,0.01);hm.visible=false;labelZone('k6','Корпус 6',new V3(r.x,9,r.z))}
 INFO.k6={tag:'Вопрос',title:'Корпус 6',text:'Стоит южнее Чёрного цеха внутри контура, который вы обвели на 2ГИС.',ask:['Корпус 6 ваш? Что в нём?']};
-building({id:'zap',name:'Склад запчастей',mr:[-36.5,70,-24,78],h:4.5,wall:0xddd0b3,roof:0xb2a27f,
- doors:[{side:'n',pm:[-35,-30]}],rooms:[{id:'zap',name:'Склад запчастей',type:'wh',tint:T.wh}]});
+building({id:'zap',name:'Склад запчастей',mr:[-40.5,72.2,-29,78.5],h:4.5,wall:0xddd0b3,roof:0xb2a27f,
+ doors:[{side:'n',pm:[-38,-33]}],rooms:[{id:'zap',name:'Склад запчастей',type:'wh',tint:T.wh}]});
 // КПП (отмечен вами на 2ГИС у въезда)
 {const b=world,kx=WX(153.5),kz=WZ(84);b.box(3,2.6,2.4,0xe8dd9a,kx,0,kz);b.box(3.3,0.25,2.7,0x8a8f95,kx,2.6,kz);b.box(0.06,1.0,1.2,C.glass,kx-1.52,1.2,kz);
  b.at(WX(150),WZ(82),-Math.atan2(18,8),()=>{for(let i=0;i<8;i++)b.box(1.0,0.12,0.12,i%2?0xd52b1e:0x2f8a46,i*1.0-3.5,1.0,0)});
@@ -752,6 +759,7 @@ flowM([[190,100],[158,100],[150,82],[140,72],[128,65.9],[125.6,33.9],[134.4,-6.1
 /* ---------- данные для карточек ---------- */
 Object.assign(INFO,{
  b1:{tag:'Корпус',title:'Цех 1 · корпус 6/1',text:'Улица Айвазовского, 6/1. По 2ГИС ≈21×63 м. Внутри по схеме, с севера на юг: сварка осей и трапов, резка, сварка рам (рядом склады осей и крупного), Сборка 1, офис. Кирпичное крыльцо у офиса. У северо-восточного угла маленький склад запчастей для сварки из ЛГЦ.',ask:['В этом корпусе ещё есть «Планета фанеры 24». Какая часть корпуса ваша?']},
+ b1a:{tag:'Склад',title:'Склад осей, трапов и крупного',text:'Отдельное оцинкованное здание впритык к восточной стене цеха 1, рядом с заготовкой металла и сваркой рамы.',ask:[]},
  b1c:{tag:'Склад',title:'Склад запчастей для сварки из ЛГЦ',text:'Маленький склад у торца цеха 1.',ask:[]},
  b2a:{tag:'Корпус',title:'Корпус 6 ст1',text:'По 2ГИС и вашим подписям: на севере песко и узкое крыло «Тента», южнее маляр, цех 2 (Сборка 2), на восточном торце офис и отдел продаж со входом с востока.',ask:[]},
  b2b:{tag:'Корпус',title:'Корпус 6 ст1',text:'Маляр, цех 2 (Сборка 2), мини-склад, офис и отдел продаж на восточном торце, вход с востока.',ask:['Здание целиком ваше?']},
@@ -860,6 +868,7 @@ function pickAt(cx,cy){const wk=workerAt(cx,cy);if(wk){showTip(wk,cx,cy);return}
  const id=h.object.userData.id;const b=buildings.find(x=>x.cfg.id===id);
  if(b&&!b.locked){b.open=true;for(const p of['b1','b2'])if(b.cfg.id.startsWith(p))buildings.filter(x=>x.cfg.id.startsWith(p)).forEach(x=>x.open=true)}
  openInfo(id)}
+INFO.b1n=INFO.b1s=INFO.b1;
 function openInfo(id){const d=INFO[id];if(!d)return;$('#info').hidden=false;$('#iTag').textContent=d.tag;$('#iTitle').textContent=d.title;$('#iText').textContent=d.text;
  const ul=$('#iAsk');ul.innerHTML='';(d.ask||[]).forEach(q=>{const li=document.createElement('li');li.textContent=q;ul.appendChild(li)});$('#iAskH').hidden=!(d.ask&&d.ask.length)}
 function closeInfo(){$('#info').hidden=true}
