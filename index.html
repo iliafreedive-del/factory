@@ -34,6 +34,7 @@ body{background:var(--sky);color:var(--cardink);font-family:var(--f-body);-webki
 .tip b{display:block;font:400 14px/1.2 var(--f-disp);color:var(--panel)}
 .tip span{display:block;color:#7a7a96;font-size:11px;margin:2px 0 5px;text-transform:uppercase;letter-spacing:.04em}
 .tip ul{margin:0;padding-left:16px}
+.lb.f{font:700 11px/1 var(--f-body);color:#24264a;background:rgba(255,255,255,.95);padding:4px 8px;border-radius:10px;border:1.5px solid #24264a;pointer-events:none}
 .lb.m{font:700 10.5px/1 var(--f-body);color:#24264a;background:#f2c230;padding:3px 6px;border-radius:4px;pointer-events:none;box-shadow:0 2px 0 rgba(0,0,0,.2)}
 .lb.hide{opacity:0;pointer-events:none}
 
@@ -202,7 +203,7 @@ const SPA=-27.95,SPB=-24.25,SPD=WIDE?4.5:0,
 const MX=m=>213+sx(m)/S, MZ=m=>205+m/S, WX=m=>X(213)+sx(m), WZ=m=>Z(205)+m, PM=(x,z)=>new V3(WX(x),0,WZ(z));
 const mp=a=>[MX(a[0]),MZ(a[1]),MX(a[2]),MZ(a[3])], mpR=(a,d)=>[213+(a[0]+d)/S,MZ(a[1]),213+(a[2]+d)/S,MZ(a[3])], RM=(a,b,c,d)=>R(...mp([a,b,c,d]));
 /* План завода — единственный источник геометрии (plan/plan.json, вставляется tools/build.py) */
-/*PLAN*/const PLAN={"about":"Завод прицепов «Аляска», Красноярск, ул. Айвазовского 6. 1 ед. = 1 м.","frame":{"origin":"СЗ угол склада комплектующих","origin_latlon":[56.026558,93.054827],"x_bearing_deg":74.97,"z_bearing_deg":164.97,"north_xz":[0.2593,-0.9658],"m_per_px_2gis":0.4166,"px0":[170,166]},"sources":["2ГИС, скриншот всего участка с пометками Ильи (26.10)","2ГИС, линейка: склад 49×14, ЛГЦ 38×12, разрыв 25 м","OpenStreetMap через Overture 2026-10-21 — проверка","подписи Ильи на скриншотах 2ГИС","337 фото и видео-обход 26–27.10"],"buildings":{"b3":{"name":"Склад комплектующих","owner":"наше","src":"линейка 2ГИС 49×14 м; на скриншоте 50×14,6 м","r":[0,0,49,14.3],"h":6.5},"b4":{"name":"ЛГЦ","owner":"наше","src":"линейка 2ГИС 38×12 м, разрыв со складом 25 м; север по скриншоту; стена ≈4,6 м, конёк ≈5,8 м, секционные ворота 4,2×4,1 м посередине обоих торцов — фото 1568, 1569, 1574, 1580","r":[74,-1.3,112,10.8],"h":4.6,"hr":1.2},"b5":{"name":"Строящийся цех","owner":"наше","src":"на картах нет; по фото рядом с ЛГЦ, такой же ангар; длина не подтверждена; стена ≈5 м по фото 1562, 1563; поставлен посередине между ЛГЦ и красным «не нашим», чтобы с обеих сторон проезжала машина (≈5 м); на западном торце открытые ворота с синей ПВХ-шторой — фото 1562, 1563","r":[78,15.9,112,27.9],"h":5,"hr":1.3},"b1":{"name":"Цех 1 · корпус 6/1","owner":"наше","src":"скриншот 2ГИС, восточный фасад без 3D-грани; удлинён на север на 2.2 м под двое ворот (резка и сварка осей) со слов Ильи","r":[-61.7,12.4,-38.3,76.7],"h":9,"ext_n":2.2},"b1c":{"name":"Склад запчастей для сварки из ЛГЦ","owner":"наше","src":"северная пристройка 6/1 на 2ГИС; сдвинута на север на 2.2 м, справа от ворот в сварку осей впритык к цеху","r":[-38.3,14.0,-28.7,19.5],"h":5},"zap":{"name":"Склад запчастей","owner":"наше","src":"план Excel: нижняя полоса E38:I38 под «Батонами», вдоль южного забора; фото 1746; длина и место примерные","r":[-28,83.5,8,87.2],"h":3.5},"canopy1":{"name":"Навес и контейнеры 1–4","owner":"наше","src":"фото 1709 и 1746 у офиса 1; место примерное","r":[-50,78.2,-41,86.8],"h":3.7},"b1a":{"name":"Склад осей, трапов и крупного","owner":"наше","src":"средняя пристройка 6/1 на 2ГИС; по словам Ильи впритык к заготовке и сварке рамы; стена ≈4,5 м, северная часть и торец синие, у торца в углу с цехом 1 синий тамбур с дверью «Z» — вход в склад (Илья) — видео 0:24–0:52","r":[-38.3,32.9,-28.7,60.8],"h":4.5},"b2a":{"name":"Корпус 6 ст1 · песко","owner":"наше","src":"западный блок 6 ст1, северная часть","r":[-24.2,22.5,-8.3,34.6],"h":8},"b2n":{"name":"Корпус 6 ст1 · маляр","owner":"наше","src":"западный блок 6 ст1, южная часть","r":[-24.2,34.6,-13.7,44.6],"h":8},"b2t":{"name":"Корпус 6 ст1 · тента","owner":"наше","src":"узкое северное крыло (подпись Ильи «тента»)","r":[-8.3,18.7,-2.5,34.6],"h":8},"b2b":{"name":"Корпус 6 ст1","owner":"наше","src":"южная длинная часть; маляр | цех 2 | офис по подписям Ильи","r":[-13.7,34.6,48.7,47.9],"h":8},"b7":{"name":"Чёрный цех · корпус 6/2","owner":"наше","src":"скриншот 2ГИС, повёрнут на 6° к остальным; OSM 110×91 м","h":8,"r":[196.7,49.7,305.7,147.6],"rot":6.1},"b6":{"name":"Не наше · красный ангар","owner":"не наше","src":"2ГИС 40 м в длину; глубина 12 м по OSM; красный ангар с киоском «Автомасла» по видео 2:21 и фото 1561","r":[71.7,33.0,111.6,45.8],"h":4.5},"gar":{"name":"Гаражи","owner":"не наше?","src":"длинная полоса на 2ГИС у южной границы, на фото ряд гаражей у серого здания","r":[59.2,77.1,131.2,84.2],"h":3},"k6":{"name":"Корпус 6","owner":"?","src":"2ГИС; на спутнике тут Рефстройтрейд","h":7,"r":[213.4,154.3,265.1,174.4],"rot":6.1},"q1":{"name":"Здание без подписи","owner":"?","src":"2ГИС, восточнее 6/2, внутри обведённого контура","h":4,"r":[328.6,90.9,338.8,105.8],"rot":11.9},"q2":{"name":"Здание без подписи","owner":"?","src":"2ГИС, восточнее 6/2, внутри обведённого контура","h":4,"r":[325.3,115.1,337.3,133.0],"rot":5.7}},"fence":[[-59.2,-60.0],[180.0,-32.9],[332.4,-19.6],[322.9,75.8],[325.8,83.7],[339.1,85.4],[379.5,130.8],[264.5,198.7],[175.8,198.3],[178.3,112.9],[167.1,99.2],[166.6,87.1],[-52.1,87.5],[-52.1,77.1],[-61.7,76.7],[-61.7,12.4],[-54.2,12.0],[-59.2,-60.0]],"containers":[146.2,-17.9,170.8,55.0],"tower_crane_rail":[[172.1,-22.1],[167.5,48.7]],"kpp":[148.3,75.0,157.5,85.8],"viewpoints":[{"photo":"IMG_1709","time":"26.10 13:06","f35":24,"title":"Кирпичная арка офиса 1","pos":[-32.5,68.5],"look":[-40,72.5]},{"photo":"IMG_1746","time":"26.10 13:12","f35":14,"title":"Двор у офиса 1: навес, контейнеры","pos":[-14,80.8],"look":[-38,80]},{"photo":"IMG_1751","time":"26.10 13:12","f35":14,"title":"Вдоль южного фасада 6 ст1, флаги","pos":[-18,57],"look":[40,56]},{"photo":"IMG_1565","time":"26.10 12:36","f35":24,"title":"Ель у восточного торца 6 ст1","pos":[66,22],"look":[45,36]},{"photo":"IMG_1561","time":"26.10 12:36","f35":24,"title":"Новый цех и красное «не наше» с «Автомаслами»","pos":[54,29],"look":[90,36]},{"photo":"IMG_1568","time":"26.10 12:36","f35":24,"title":"Западные ворота ЛГЦ, через них вход","pitch":7.5,"pos":[64.5,5.6],"look":[74,4.75]},{"photo":"IMG_1563","time":"26.10 12:36","f35":14,"title":"Западные торцы ЛГЦ и нового цеха с синей шторой","pos":[59.9,21.2],"look":[69,17]},{"photo":"IMG_1569","time":"26.10 12:36","f35":14,"title":"ЛГЦ от западных ворот: листогиб слева, фермы справа","pos":[75.6,4.4],"look":[112,4.75]},{"photo":"IMG_1572","time":"26.10 12:36","f35":14,"title":"Листогиб Ermaksan у северной стены","pos":[80.6,5.0],"look":[84.6,-1.9]},{"photo":"IMG_1574","time":"26.10 12:37","f35":24,"title":"Лазер Bodor и восточные ворота","pos":[91.6,5.2],"look":[112,4.75]},{"photo":"IMG_1580","time":"26.10 12:38","f35":14,"title":"ЛГЦ от восточных ворот: погрузчик, лазер, баллоны","pos":[105.2,4.8],"look":[74,4.75]},{"photo":"IMG_1587","time":"26.10 12:46","f35":24,"title":"ЖД-тупик и козловой кран","pos":[10,-26.3],"look":[60,-26.3]},{"photo":"V1890_0006","time":"видео 0:06","vfov":66,"pitch":6,"title":"Крыльцо-арка «Отдел продаж»","pos":[-31.6,68.9],"look":[-40,68.9]},{"photo":"V1890_0014","time":"видео 0:14","vfov":48,"pitch":-3,"title":"Ворота цеха 1 с зелёной завесой, Nissan","pos":[-23.5,65.8],"look":[-38.3,65.5]},{"photo":"V1890_0018","time":"видео 0:18","vfov":90,"pitch":-8,"title":"Юго-западный угол 6 ст1, вытяжка, рамы","pos":[-22,62.3],"look":[-13.7,48]},{"photo":"V1890_0024","time":"видео 0:24","vfov":90,"pitch":-9,"title":"Офис 1 и ворота цеха 1 с северо-востока","pos":[-21.6,66.0],"look":[-38.3,69.5]},{"photo":"V1890_0030","time":"видео 0:30","vfov":62,"pitch":-3,"title":"Вдоль пристройки: рамы, ржавая и синяя стена","pos":[-18,53.5],"look":[-28.7,45]},{"photo":"V1890_0052","time":"видео 0:52","vfov":86,"pitch":-1,"title":"Синяя дверь с «Z» в склад осей и ворота в резку","pos":[-24.6,27.6],"look":[-38.3,31.1]}],"underlay_2gis":{"file":"3f8a4484 (не в репозитории)","px":[1099,729],"r":[-70.8,-69.2,387.0,234.5]}};/*/PLAN*/
+/*PLAN*/const PLAN={"about":"Завод прицепов «Аляска», Красноярск, ул. Айвазовского 6. 1 ед. = 1 м.","frame":{"origin":"СЗ угол склада комплектующих","origin_latlon":[56.026558,93.054827],"x_bearing_deg":74.97,"z_bearing_deg":164.97,"north_xz":[0.2593,-0.9658],"m_per_px_2gis":0.4166,"px0":[170,166]},"sources":["2ГИС, скриншот всего участка с пометками Ильи (26.10)","2ГИС, линейка: склад 49×14, ЛГЦ 38×12, разрыв 25 м","OpenStreetMap через Overture 2026-10-21 — проверка","подписи Ильи на скриншотах 2ГИС","337 фото и видео-обход 26–27.10"],"buildings":{"b3":{"name":"Склад комплектующих","owner":"наше","src":"линейка 2ГИС 49×14 м; на скриншоте 50×14,6 м","r":[0,0,49,14.3],"h":6.5},"b4":{"name":"ЛГЦ","owner":"наше","src":"линейка 2ГИС 38×12 м, разрыв со складом 25 м; север по скриншоту; стена ≈4,6 м, конёк ≈5,8 м, секционные ворота 4,2×4,1 м посередине обоих торцов — фото 1568, 1569, 1574, 1580","r":[74,-1.3,112,10.8],"h":4.6,"hr":1.2},"b5":{"name":"Строящийся цех","owner":"наше","src":"на картах нет; по фото рядом с ЛГЦ, такой же ангар; длина не подтверждена; стена ≈5 м по фото 1562, 1563; поставлен посередине между ЛГЦ и красным «не нашим», чтобы с обеих сторон проезжала машина (≈5 м); на западном торце открытые ворота с синей ПВХ-шторой — фото 1562, 1563","r":[78,15.9,112,27.9],"h":5,"hr":1.3},"b1":{"name":"Цех 1 · корпус 6/1","owner":"наше","src":"скриншот 2ГИС, восточный фасад без 3D-грани; удлинён на север на 2.2 м под двое ворот (резка и сварка осей) со слов Ильи","r":[-61.7,12.4,-38.3,76.7],"h":9,"ext_n":2.2},"b1c":{"name":"Склад запчастей для сварки из ЛГЦ","owner":"наше","src":"северная пристройка 6/1 на 2ГИС; сдвинута на север на 2.2 м, справа от ворот в сварку осей впритык к цеху","r":[-38.3,14.0,-28.7,19.5],"h":5},"zap":{"name":"Склад запчастей","owner":"наше","src":"план Excel: нижняя полоса E38:I38 под «Батонами», вдоль южного забора; фото 1746; длина и место примерные","r":[-28,83.5,8,87.2],"h":3.5},"canopy1":{"name":"Навес и контейнеры 1–4","owner":"наше","src":"фото 1709 и 1746 у офиса 1; место примерное","r":[-50,78.2,-41,86.8],"h":3.7},"b1a":{"name":"Склад осей, трапов и крупного","owner":"наше","src":"средняя пристройка 6/1 на 2ГИС; по словам Ильи впритык к заготовке и сварке рамы; стена ≈4,5 м, северная часть и торец синие, у торца в углу с цехом 1 синий тамбур с дверью «Z» — вход в склад (Илья) — видео 0:24–0:52","r":[-38.3,32.9,-28.7,60.8],"h":4.5},"b2a":{"name":"Корпус 6 ст1 · песко","owner":"наше","src":"западный блок 6 ст1, северная часть","r":[-24.2,22.5,-8.3,34.6],"h":8},"b2n":{"name":"Корпус 6 ст1 · маляр","owner":"наше","src":"западный блок 6 ст1, южная часть","r":[-24.2,34.6,-13.7,44.6],"h":8},"b2t":{"name":"Корпус 6 ст1 · тента","owner":"наше","src":"узкое северное крыло (подпись Ильи «тента»)","r":[-8.3,18.7,-2.5,34.6],"h":8},"b2b":{"name":"Корпус 6 ст1","owner":"наше","src":"южная длинная часть; маляр | цех 2 | офис по подписям Ильи","r":[-13.7,34.6,48.7,47.9],"h":8},"b7":{"name":"Чёрный цех · корпус 6/2","owner":"наше","src":"скриншот 2ГИС, повёрнут на 6° к остальным; OSM 110×91 м","h":8,"r":[196.7,49.7,305.7,147.6],"rot":6.1},"b6":{"name":"Не наше · красный ангар","owner":"не наше","src":"2ГИС 40 м в длину; глубина 12 м по OSM; красный ангар с киоском «Автомасла» по видео 2:21 и фото 1561","r":[71.7,33.0,111.6,45.8],"h":4.5},"gar":{"name":"Гаражи","owner":"не наше?","src":"длинная полоса на 2ГИС у южной границы, на фото ряд гаражей у серого здания","r":[59.2,77.1,131.2,84.2],"h":3},"k6":{"name":"Корпус 6","owner":"?","src":"2ГИС; на спутнике тут Рефстройтрейд","h":7,"r":[213.4,154.3,265.1,174.4],"rot":6.1},"q1":{"name":"Здание без подписи","owner":"?","src":"2ГИС, восточнее 6/2, внутри обведённого контура","h":4,"r":[328.6,90.9,338.8,105.8],"rot":11.9},"q2":{"name":"Здание без подписи","owner":"?","src":"2ГИС, восточнее 6/2, внутри обведённого контура","h":4,"r":[325.3,115.1,337.3,133.0],"rot":5.7}},"fence":[[-59.2,-60.0],[180.0,-32.9],[332.4,-19.6],[322.9,75.8],[325.8,83.7],[339.1,85.4],[379.5,130.8],[264.5,198.7],[175.8,198.3],[178.3,112.9],[167.1,99.2],[166.6,87.1],[-52.1,87.5],[-52.1,77.1],[-61.7,76.7],[-61.7,12.4],[-54.2,12.0],[-59.2,-60.0]],"containers":[146.2,-17.9,170.8,55.0],"tower_crane_rail":[[172.1,-22.1],[167.5,48.7]],"kpp":[148.3,75.0,157.5,85.8],"viewpoints":[{"photo":"IMG_1709","time":"26.10 13:06","f35":24,"title":"Кирпичная арка офиса 1","pos":[-32.5,68.5],"look":[-40,72.5]},{"photo":"IMG_1746","time":"26.10 13:12","f35":14,"title":"Двор у офиса 1: навес, контейнеры","pos":[-14,80.8],"look":[-38,80]},{"photo":"IMG_1751","time":"26.10 13:12","f35":14,"title":"Вдоль южного фасада 6 ст1, флаги","pos":[-18,57],"look":[40,56]},{"photo":"IMG_1565","time":"26.10 12:36","f35":24,"title":"Ель у восточного торца 6 ст1","pos":[66,22],"look":[45,36]},{"photo":"IMG_1561","time":"26.10 12:36","f35":24,"title":"Новый цех и красное «не наше» с «Автомаслами»","pos":[54,29],"look":[90,36]},{"photo":"IMG_1568","time":"26.10 12:36","f35":24,"title":"Западные ворота ЛГЦ, через них вход","pitch":7.5,"pos":[64.5,5.6],"look":[74,4.75]},{"photo":"IMG_1563","time":"26.10 12:36","f35":14,"title":"Западные торцы ЛГЦ и нового цеха с синей шторой","pos":[59.9,21.2],"look":[69,17]},{"photo":"IMG_1569","time":"26.10 12:36","f35":14,"title":"ЛГЦ от западных ворот: листогиб слева, фермы справа","pos":[75.6,4.4],"look":[112,4.75]},{"photo":"IMG_1572","time":"26.10 12:36","f35":14,"title":"Листогиб Ermaksan у северной стены","pos":[80.6,5.0],"look":[84.6,-1.9]},{"photo":"IMG_1574","time":"26.10 12:37","f35":24,"title":"Лазер Bodor и восточные ворота","pos":[91.6,5.2],"look":[112,4.75]},{"photo":"IMG_1580","time":"26.10 12:38","f35":14,"title":"ЛГЦ от восточных ворот: погрузчик, лазер, баллоны","pos":[105.2,4.8],"look":[74,4.75]},{"photo":"IMG_1587","time":"26.10 12:46","f35":24,"title":"ЖД-тупик и козловой кран","pos":[10,-26.3],"look":[60,-26.3]},{"photo":"V1890_0006","time":"видео 0:06","vfov":66,"pitch":6,"title":"Крыльцо-арка «Отдел продаж»","pos":[-31.6,68.9],"look":[-40,68.9]},{"photo":"V1890_0014","time":"видео 0:14","vfov":48,"pitch":-3,"title":"Ворота цеха 1 с зелёной завесой, Nissan","pos":[-23.5,65.8],"look":[-38.3,65.5]},{"photo":"V1890_0018","time":"видео 0:18","vfov":90,"pitch":-8,"title":"Юго-западный угол 6 ст1, вытяжка, рамы","pos":[-22,62.3],"look":[-13.7,48]},{"photo":"V1890_0024","time":"видео 0:24","vfov":90,"pitch":-9,"title":"Офис 1 и ворота цеха 1 с северо-востока","pos":[-21.6,66.0],"look":[-38.3,69.5]},{"photo":"V1890_0030","time":"видео 0:30","vfov":62,"pitch":-3,"title":"Вдоль пристройки: рамы, ржавая и синяя стена","pos":[-18,53.5],"look":[-28.7,45]},{"photo":"V1890_0052","time":"видео 0:52","vfov":86,"pitch":-1,"title":"Синяя дверь с «Z» в склад осей и ворота в резку","pos":[-24.6,27.6],"look":[-38.3,31.1]},{"photo":"IMG_1920","time":"28.10","f35":14,"title":"Крыльцо офиса 1: арка «Отдел продаж»","pos":[-31.0,74.0],"look":[-40.5,68.4]},{"photo":"IMG_1921","time":"28.10","f35":14,"title":"Коридор от крыльца на запад","pos":[-38.8,69.05],"look":[-53.6,68.9]},{"photo":"IMG_1922","time":"28.10","f35":14,"title":"Оптовые продажи: к окну на восток","pos":[-44.2,71.3],"look":[-38.65,73.9]},{"photo":"IMG_1923","time":"28.10","f35":14,"title":"Оптовые продажи: карта и перфопанель","pos":[-39.4,72.9],"look":[-44.9,73.0]},{"photo":"IMG_1924","time":"28.10","f35":14,"title":"Снабжение: стол Михаила у окна","pos":[-46.0,69.95],"look":[-46.8,76.35]},{"photo":"IMG_1925","time":"28.10","f35":14,"title":"Снабжение: шкаф с касками, дверь","pos":[-46.3,75.3],"look":[-46.3,69.8]},{"photo":"IMG_1926","time":"28.10","f35":14,"title":"Туалет","pos":[-49.75,73.5],"look":[-49.75,69.8]},{"photo":"IMG_1931","time":"28.10","f35":14,"title":"Торец коридора: склад СИЗ, лестница, дверь к кладовщикам","pos":[-50.95,68.8],"look":[-53.6,69.0]},{"photo":"IMG_1927","time":"28.10","f35":14,"pitch":26,"title":"Лестница: первый марш, окно на площадке","pos":[-52.95,69.2],"look":[-52.95,76.35]},{"photo":"IMG_1928","time":"28.10","f35":14,"pitch":12,"y":3.3,"title":"Лестница: второй марш на 2 этаж","pos":[-51.6,75.7],"look":[-51.6,67.75]},{"photo":"IMG_1929","time":"28.10","f35":14,"y":5.0,"title":"Бухгалтерия: окна на восток","pos":[-45.6,75.9],"look":[-40.0,70.6]},{"photo":"IMG_1930","time":"28.10","f35":14,"y":5.0,"title":"Бухгалтерия: шкаф-купе, выход","pos":[-39.4,74.8],"look":[-46.2,72.4]},{"photo":"IMG_1932","time":"28.10","vfov":100,"title":"Кладовщики от двери: стеллажи, окно в торце","pos":[-54.75,68.9],"look":[-55.4,76.35]},{"photo":"IMG_1933","time":"28.10","vfov":100,"title":"Кладовщики к двери: вешалка, серая дверь","pos":[-54.75,76.1],"look":[-55.0,67.75]}],"underlay_2gis":{"file":"3f8a4484 (не в репозитории)","px":[1099,729],"r":[-70.8,-69.2,387.0,234.5]}};/*/PLAN*/
 const PB=id=>PLAN.buildings[id], PR=id=>PLAN.buildings[id].r;
 
 const C={ground:0xe6e0cc,grass:0xb5cf84,grass2:0x9fc070,concrete:0xd4cdbd,asphalt:0x8e8a86,line:0xf7f3e8,yellow:0xf2c230,
@@ -440,10 +441,10 @@ function liftTruck(b,x,z,ry){b.at(x,z,ry,()=>{const K=0x232425,O=0xd88a2a;   // 
 
 /* Сотрудники офисов — имена пока условные, заменим на настоящие */
 const STAFF={
- off1:[{name:'Руководитель',role:'Директор',fn:['Общее руководство заводом','Цены, крупные клиенты, дилеры'],shirt:0x2b2f6b,hair:0x3b2d22},
-  {name:'Менеджер продаж',role:'Продажи',fn:['Заказы клиентов и дилеров','Розница: Айвазовского, Молоково'],shirt:0xffffff,hair:0x6b4a2a},
-  {name:'Снабженец',role:'Снабжение',fn:['Закупка металла, осей, колёс','Комплектующие на склад'],shirt:0x5f8fbf,hair:0x2b2b2b},
-  {name:'Бухгалтер',role:'Бухгалтерия',fn:['Оплаты, счета, зарплата'],shirt:0xc9773a,hair:0x8a5a3a}],
+ ofOpt:[{name:null,role:'Менеджер',fn:['Отдел оптовых продаж (фото 1922)'],shirt:0x2a2a2e,hair:0x4a2a1c}],
+ ofSup:[{name:'Михаил',role:'Снабженец',fn:['Снабжение завода'],shirt:0x1d2333,hair:0x2b2420}],
+ ofKl:[{name:null,role:'Кладовщик',fn:['Выдаёт крепёж и комплектующие со склада'],shirt:0x4f5a3a,hair:0x2b3324},{name:null,role:'Кладовщик',fn:['Выдаёт крепёж и комплектующие со склада'],shirt:0x4f5a3a,hair:0x2b3324}],
+ ofAcc:[{name:null,role:'Бухгалтер',fn:['Бухгалтерия (фото 1929)'],shirt:0x3a3a40,hair:0x5a3a2a}],
  off2:[{name:'Мастер цеха',role:'Производство',fn:['Распределяет рамы: на сборку или в отгрузку','План на смену'],shirt:0xe4782e,hair:0x3b2d22},
   {name:'Логист',role:'Отгрузка',fn:['Отправка дилерам («батоны»)','Машины на цинк и обратно'],shirt:0x2f8a7a,hair:0x2b2b2b}]};
 const F={
@@ -628,11 +629,13 @@ function building(cfg){
  const r=R(...cfg.r),h=cfg.h,t=0.35,g=new THREE.Group();scene.add(g);
  const walls=new THREE.Group();g.add(walls);
  const wb=new Batch(),ib=new Batch(),rb=new Batch(),fb=new Batch(),rf=new Batch();   // fb, rf — пена внутри утеплённых ангаров
+ // двухэтажное здание: cfg.F — отметка плиты перекрытия; 2 этаж (fl2) и его стены (walls2) — отдельные группы, их прячет приближение
+ const FL=cfg.F||0,hw=FL||h,wb2=new Batch(),fb2=new Batch(),ib2=new Batch(),bb2=new Batch();let walls2=null,fl2=null;
+ if(FL){walls2=new THREE.Group();fl2=new THREE.Group();walls2.position.y=fl2.position.y=FL;g.add(walls2,fl2)}
  pad(null,r,cfg.floor||0xe9e4d8,g,0.04);
  // стены
- const wall=cfg.wall;
- wb.box(r.w,h,t,wall,r.x,0,r.z1+t/2);wb.box(r.w,h,t,wall,r.x,0,r.z2-t/2);
- wb.box(t,h,r.d-2*t,wall,r.x1+t/2,0,r.z);wb.box(t,h,r.d-2*t,wall,r.x2-t/2,0,r.z);
+ const wall=cfg.wall,ow=(b,H)=>{b.box(r.w,H,t,wall,r.x,0,r.z1+t/2);b.box(r.w,H,t,wall,r.x,0,r.z2-t/2);b.box(t,H,r.d-2*t,wall,r.x1+t/2,0,r.z);b.box(t,H,r.d-2*t,wall,r.x2-t/2,0,r.z)};
+ ow(wb,hw);if(FL)ow(wb2,h-FL);
  wb.box(r.w+0.06,0.5,t+0.06,cfg.trim||0x9c9584,r.x,0,r.z1+t/2);wb.box(r.w+0.06,0.5,t+0.06,cfg.trim||0x9c9584,r.x,0,r.z2-t/2);
  wb.box(t+0.06,0.5,r.d,cfg.trim||0x9c9584,r.x1+t/2,0,r.z);wb.box(t+0.06,0.5,r.d,cfg.trim||0x9c9584,r.x2-t/2,0,r.z);
  if(cfg.stripe){wb.box(r.w+0.08,0.7,t+0.08,cfg.stripe,r.x,h-1.4,r.z1+t/2);wb.box(r.w+0.08,0.7,t+0.08,cfg.stripe,r.x,h-1.4,r.z2-t/2);wb.box(t+0.08,0.7,r.d,cfg.stripe,r.x1+t/2,h-1.4,r.z);wb.box(t+0.08,0.7,r.d,cfg.stripe,r.x2-t/2,h-1.4,r.z)}
@@ -646,16 +649,17 @@ function building(cfg){
    for(let y=0.5;y<gh;y+=0.5)wb.box(t+0.18,0.04,b-a,0x58636d,x,y,(a+b)/2)}}
  // перегородки и комнаты
  const rooms=(cfg.rooms||[]).map(q=>({...q,R:q.r?R(...q.r):r}));
- for(const rm of rooms){const q=rm.R;
-  if(!['office','wh','whAx','whBig','whKit','mini','lgc'].includes(rm.type))border(ib,inset(q,0.9),0xf2c230,0.14,0.09);
-  rm.floor=pad(rm.id,{x:q.x,z:q.z,w:q.w-0.8,d:q.d-0.8},rm.tint||0xe6e0d1,g,0.07);
-  if(q.x2<r.x2-0.2){const gap=Math.min(3.2,q.d*0.35),seg=(q.d-gap)/2;
+ for(const rm of rooms){const q=rm.R,f2=rm.fl===2,own=rm.walls===false;   // own: стены и двери комнаты рисует cfg.extra
+  if(!own&&!['office','wh','whAx','whBig','whKit','mini','lgc'].includes(rm.type))border(ib,inset(q,0.9),0xf2c230,0.14,0.09);
+  rm.floor=pad(rm.id,{x:q.x,z:q.z,w:q.w-(own?0:0.8),d:q.d-(own?0:0.8)},rm.tint||0xe6e0d1,f2?fl2:g,f2?0.03:0.07);
+  if(!own&&q.x2<r.x2-0.2){const gap=Math.min(3.2,q.d*0.35),seg=(q.d-gap)/2;
    wb.box(0.2,h,seg,0xf1ece0,q.x2,0,q.z1+seg/2);wb.box(0.2,h,seg,0xf1ece0,q.x2,0,q.z2-seg/2)}
-  if(q.z2<r.z2-0.2){const gap=Math.min(3.2,q.w*0.35),seg=(q.w-gap)/2;
+  if(!own&&q.z2<r.z2-0.2){const gap=Math.min(3.2,q.w*0.35),seg=(q.w-gap)/2;
    wb.box(seg,h,0.2,0xf1ece0,q.x1+seg/2,0,q.z2);wb.box(seg,h,0.2,0xf1ece0,q.x2-seg/2,0,q.z2)}
   curRole=ROLE[rm.type]||null;curRoom=rm;if(F[rm.type])F[rm.type](ib,inset(Object.assign({},q,{x:q.x,z:q.z}),0.4)&&{...q,...inset(q,0.4),x:q.x,z:q.z,w:q.w-0.8,d:q.d-0.8});
-  labels.push({el:mkLabel('r',rm.name,rm.step,rm.id),p:new V3(q.x,2.4,q.z),b:null,kind:'r'})}
- if(cfg.extra)cfg.extra({wb,ib,rb,fb,r,g,walls,h,hr:cfg.hr});
+  labels.push({el:mkLabel('r',rm.name,rm.step,rm.id),p:new V3(q.x,(f2?FL:0)+(rm.ly??2.4),q.z),b:null,kind:'r',fl:FL?(f2?2:1):0})}
+ if(cfg.extra)cfg.extra({wb,ib,rb,fb,rf,r,g,walls,h,hr:cfg.hr,FL,wb2,fb2,ib2,bb2,walls2,fl2});
+ if(FL){wb2.build(walls2);fb2.build(walls2,{basic:true,cast:false});ib2.build(fl2);bb2.build(fl2,{basic:true,cast:false})}
  // крыша
  if(cfg.roofType==='gable'&&cfg.ridge==='x'&&cfg.foam){   // двускатная из листа, изнутри пена: видно изнутри, в отличие от сплошной призмы
   const hr=cfg.hr,a=Math.atan2(hr,r.d/2),ta=Math.tan(a),Lo=r.d/2+0.4,Li=r.d/2-t;
@@ -682,7 +686,8 @@ function building(cfg){
   if(cfg.cross){const L=Math.hypot(r.w,r.d)*0.8,a=Math.atan2(r.d,r.w);rb.box(L,0.12,0.9,0xd9433a,r.x,h+0.46,r.z,a);rb.box(L,0.12,0.9,0xd9433a,r.x,h+0.46,r.z,-a)}}
  const wm=wb.build(walls),im=ib.build(g),rm_=rb.build(g,{transparent:true});fb.build(walls,{basic:true,cast:false});const rin=rf.build(g,{basic:true,transparent:true,cast:false});
  if(rm_){rm_.userData.id=cfg.id;hits.push(rm_)}
- const obj={cfg,r,g,walls,roof:rm_,roofIn:rin,c:0,open:false,locked:!!cfg.locked,rooms};
+ const obj={cfg,r,g,walls,roof:rm_,roofIn:rin,c:0,open:false,locked:!!cfg.locked,rooms,walls2,fl2,c2:0};
+ if(FL)labels.push({el:mkLabel('f','',null,cfg.id),p:new V3(r.x,h+0.6,r.z1),b:obj,kind:'f'});
  if(cfg.rot){const piv=new THREE.Group();piv.position.set(r.x,0,r.z);piv.rotation.y=-cfg.rot*Math.PI/180;scene.add(piv);piv.add(g);g.position.set(-r.x,0,-r.z)}
  buildings.push(obj);pendL.forEach(L=>L.b=obj);pendL=[];
  if(cfg.label!==false)labels.push({el:mkLabel('b',cfg.name,null,cfg.id),p:new V3(cfg.lx!=null?X(cfg.lx):r.x,h+(cfg.roofType==='gable'?cfg.hr??Math.min(r.w,r.d)*0.22:1)+2.2,cfg.lz!=null?Z(cfg.lz):r.z),b:obj,kind:'b'});
@@ -707,16 +712,212 @@ function sign(tex,W,H,x,y,z,ry,parent=scene){const m=new THREE.Mesh(new THREE.Pl
 function txt(g,t,x,y,size,col,w=700,font='Arial'){g.font=`${w} ${size}px ${font},sans-serif`;g.fillStyle=col;g.textAlign='center';g.textBaseline='middle';g.fillText(t,x,y)}
 const mountains=(g,x,y,s,col)=>{g.fillStyle=col;g.beginPath();g.moveTo(x,y);g.lineTo(x+40*s,y-46*s);g.lineTo(x+62*s,y-22*s);g.lineTo(x+92*s,y-58*s);g.lineTo(x+140*s,y);g.closePath();g.fill()};
 // офис 1: двухэтажный, белый силикатный кирпич; на восточной стене вывеска ALASKA, табличка УПТК, кондиционер (видео 0:05–0:06, 0:24)
-{const ob=building({id:'b1o',name:'Офис 1 · отдел продаж',mr:[c1x1,c1z(0.85),c1x2,c1z2],h:7,wall:BRICK,trim:0xb9b6ae,roof:0x8d8f91,parapet:0xc9c6be,label:false,windows:false,
- rooms:[{id:'off1',name:'Офис 1',type:'office',tint:T.off}]});
- const X0=WX(c1x2)+0.19,par=ob.walls,w=new Batch();
- for(const [z,y] of[[73.1,0.9],[73.3,4.6],[75.6,4.6]]){w.box(0.08,1.5,1.5,0xf4f4f2,X0,y,WZ(z));w.box(0.1,1.3,1.3,0x8fb3c9,X0+0.01,y+0.1,WZ(z))}
- w.box(0.35,0.6,0.85,0xf1f1ef,X0+0.15,5.5,WZ(69.7));w.box(0.06,6.6,0.1,0x8e8f8c,X0+0.05,0,WZ(68.0));
- w.build(par);
+// внутри — фото 1920–1933 и слова Ильи: 1 этаж — от крыльца коридор на запад, слева двери: оптовые продажи, снабжение (Михаил), туалет,
+// склад СИЗ под лестницей, лестница; в торце коридора узкий кабинет кладовщиков. 2 этаж — коридор от лестницы, бухгалтерия, узкий кабинет директора.
+const OFF_F=3.4;   // перекрытие: два марша по 12 подъёмов, площадка у южной стены
+const ofCeil=[];   // потолки 2 этажа — гаснут вместе с крышей
+const texCache={};
+function gridTex(key,cell,bg,line,lw=2,stripe=0){if(texCache[key])return texCache[key];   // плитка, потолок «армстронг», ламинат (stripe — доски со сдвигом стыков)
+ const t=signTex(64,64,(g,W,H)=>{g.fillStyle=bg;g.fillRect(0,0,W,H);g.fillStyle=line;if(stripe){for(let i=0;i<4;i++){g.fillRect(0,i*16,W,lw);g.fillRect((i*37)%64,i*16,lw,16)}}else{g.fillRect(0,0,W,lw);g.fillRect(0,0,lw,H)}});
+ t.wrapS=t.wrapT=THREE.RepeatWrapping;t.userData={cell};return texCache[key]=t}
+function texOn(mesh,tex,w,d){const t=tex.clone();t.needsUpdate=true;t.repeat.set(w/tex.userData.cell,d/tex.userData.cell);mesh.material.map=t;mesh.material.color.set(0xffffff);mesh.material.needsUpdate=true}
+// мебель: стол-тумба, кресло, монитор, шкаф; face — куда смотрит сидящий (0 — на юг, π — на север, π/2 — на восток)
+function pdesk(b,x,z,L,D,face,top=0xd09a5c,side=top){b.at(x,z,face+Math.PI,()=>{b.box(L,0.04,D,top,0,0.71,0);for(const s of[-1,1])b.box(0.04,0.71,D-0.04,side,s*(L/2-0.02),0,0);b.box(L-0.08,0.35,0.02,side,0,0.3,-D/2+0.03)})}
+function chair(b,x,z,face,c=0x1d1e21,back=c){b.at(x,z,face+Math.PI,()=>{b.box(0.5,0.08,0.48,c,0,0.42,0);b.box(0.48,0.62,0.07,back,0,0.5,0.24);b.cyl(0.03,0.36,0x2a2a2a,0,0.24,0);b.box(0.56,0.04,0.06,0x2a2a2a,0,0.04,0);b.box(0.06,0.04,0.56,0x2a2a2a,0,0.04,0)})}
+function mon(b,x,z,face,w=0.55,scr=0x5f8fc9){b.at(x,z,face+Math.PI,()=>{b.box(w,0.34,0.04,0x1b1c1f,0,0.87,0);b.box(w-0.05,0.29,0.01,scr,0,0.895,0.021);b.box(0.05,0.13,0.05,0x1b1c1f,0,0.74,0);b.box(0.22,0.015,0.16,0x1b1c1f,0,0.73,0)})}
+function cabinet(b,x,z,L,D,H,face,c,fill=null,doors=0.8){b.at(x,z,face,()=>{   // шкаф лицом в сторону face; fill — цвета папок/коробок на полках
+ b.box(L,H,0.02,c,0,0,-D/2+0.01);for(const s of[-1,1])b.box(0.03,H,D,c,s*(L/2-0.015),0,0);b.box(L,0.03,D,c,0,H-0.03,0);b.box(L,0.05,D,c,0,0,0);
+ if(doors>0)b.box(L-0.06,doors,0.02,c,0,0.05,D/2-0.01);
+ for(let y=doors+0.05;y<H-0.25;y+=0.38){b.box(L-0.06,0.025,D-0.03,c,0,y,0);if(fill){let px=-L/2+0.06;while(px<L/2-0.1){const w=0.06+((px*97|0)&1)*0.02;b.box(w,0.3,D*0.75,fill[((px*31+y*7)|0)%fill.length],px+w/2,y+0.025,0);px+=w+0.005}}}})}
+function redRack(b,x,z,L,D,H,n,ry,top='box'){b.at(x,z,ry,()=>{const RU=0xc0262b,BD=0x3f342d;   // красный стеллаж кладовщиков: ящики с крепежом
+ const k=Math.max(1,Math.round(L/1.5));for(let i=0;i<=k;i++)for(const s of[-1,1])b.box(0.05,H,0.05,RU,-L/2+0.025+i*(L-0.05)/k,0,s*(D/2-0.025));
+ for(let l=0;l<n;l++){const y=0.1+l*(H-0.15)/(n-1);b.box(L,0.03,D,BD,0,y,0);for(const s of[-1,1])b.box(L,0.07,0.04,RU,0,y-0.04,s*(D/2-0.02));
+  if(l===n-1)continue;const up=l>=n-2;let px=-L/2+0.12;
+  while(px<L/2-0.2){const w=up?0.4:0.22,c=up?(top==='black'?0x1e1f22:pick([C.box,0xb88f56,0xd9b77c,0x2f8a57])):(l%2?0x2f5fb0:0xe7be1e);
+   b.box(w,up?0.28:0.13,D*0.8,c,px+w/2,y+0.03,0);px+=w+0.03}}})}
+
+function office1({wb,ib,fb,rf,g,walls,FL,wb2,fb2,ib2,bb2,fl2}){
+ const A=WX,B=WZ,Y0=0.085,R=1.7/12,th=Math.atan2(1.7,3.3),SL=Math.hypot(1.7,3.3);
+ // стена-прямоугольник в плане [x1,z1,x2,z2] с проёмами [a,b,низ,верх] вдоль длинной стороны
+ const wseg=(b,x1,z1,x2,z2,y0,y1,c,gaps=[],dh=2.1)=>{const ax=(x2-x1)>=(z2-z1);let p=ax?x1:z1;
+  const put=(a,e,ya,yb)=>{if(e-a<0.004||yb-ya<0.004)return;if(ax)b.box(A(e)-A(a),yb-ya,B(z2)-B(z1),c,(A(a)+A(e))/2,ya,(B(z1)+B(z2))/2);else b.box(A(x2)-A(x1),yb-ya,B(e)-B(a),c,(A(x1)+A(x2))/2,ya,(B(a)+B(e))/2)};
+  for(const [ga,gb,lo=-9,hi=dh] of[...gaps].sort((u,v)=>u[0]-v[0])){put(p,ga,y0,y1);put(ga,gb,y0,Math.min(lo,y1));put(ga,gb,Math.max(y0,hi),y1);p=gb}put(p,ax?x2:z2,y0,y1)};
+ // отделка комнаты изнутри по четырём стенам: краска, плитка, панель; gp — проёмы {n,s,w,e}
+ const lin=(b,[x1,z1,x2,z2],c,y0,y1,gp={},dh=2.1,e=0.015)=>{wseg(b,x1,z1,x2,z1+e,y0,y1,c,gp.n,dh);wseg(b,x1,z2-e,x2,z2,y0,y1,c,gp.s,dh);wseg(b,x1,z1,x1+e,z2,y0,y1,c,gp.w,dh);wseg(b,x2-e,z1,x2,z2,y0,y1,c,gp.e,dh)};
+ const band=(b,Rr,y0,y1,gp,c=0xcda066)=>{lin(b,Rr,c,y0,y1,gp,9,0.026);lin(b,Rr,0xf7f6f1,y1,y1+0.035,gp,9,0.032);lin(b,Rr,0xf7f6f1,y0-0.035,y0,gp,9,0.032)};
+ // дверь в проёме [a,e] стены с осью m (ax — стена вдоль x), с коробкой и ручками
+ const door=(b,ax,a,e,m,c,fr=0xf3f2ee,h=2.05,t=0.15)=>{const k=0xc9ccd0;
+  if(ax){const cx=(A(a)+A(e))/2,z=B(m);b.box(A(e)-A(a),h,0.04,c,cx,0,z);for(const x of[a,e])b.box(0.06,h+0.06,t+0.04,fr,A(x),0,z);b.box(A(e)-A(a)+0.12,0.06,t+0.04,fr,cx,h,z);for(const s of[-1,1])b.box(0.12,0.03,0.03,k,A(a)+0.12,1.0,z+s*0.04)}
+  else{const cz=(B(a)+B(e))/2,x=A(m);b.box(0.04,h,B(e)-B(a),c,x,0,cz);for(const z of[a,e])b.box(t+0.04,h+0.06,0.06,fr,x,0,B(z));b.box(t+0.04,0.06,B(e)-B(a)+0.12,fr,x,h,cz);for(const s of[-1,1])b.box(0.03,0.03,0.12,k,x+s*0.04,1.0,B(a)+0.12)}};
+ // окно в наружной стене (e — восточная, s — южная): c — середина вдоль стены, y — низ; стекло сквозь кладку, рама и подоконник
+ const win=(bw,bf,side,c,y,w,hh,ext=true)=>{const G=0xbcd3e0,Wf=0xf4f4f1;
+  if(side==='e'){const xi=A(-38.65);bf.box(0.2,hh,w,G,xi+0.05,y,B(c));
+   for(const [yy,hy] of[[y+hh,0.07],[y-0.07,0.07]])bf.box(0.06,hy,w+0.14,Wf,xi-0.02,yy,B(c));for(const s of[-1,1])bf.box(0.06,hh,0.07,Wf,xi-0.02,y,B(c)+s*(w/2+0.035));
+   bf.box(0.3,0.04,w+0.12,Wf,xi-0.13,y-0.04,B(c));bf.box(0.05,hh,0.05,Wf,xi-0.03,y,B(c))}
+  else{const zi=B(76.35),zo=B(76.7);bf.box(w,hh,0.47,G,A(c),y,(zi+zo)/2);
+   for(const [yy,hy] of[[y+hh,0.07],[y-0.07,0.07]])bf.box(w+0.14,hy,0.06,Wf,A(c),yy,zi-0.02);for(const s of[-1,1])bf.box(0.07,hh,0.06,Wf,A(c)+s*(w/2+0.035),y,zi-0.02);
+   bf.box(w+0.12,0.04,0.3,Wf,A(c),y-0.04,zi-0.13);bf.box(0.05,hh,0.05,Wf,A(c),y,zi-0.03);
+   if(ext){bw.box(w+0.2,hh+0.2,0.08,0xf4f4f2,A(c),y-0.1,zo+0.04);bw.box(w,hh,0.1,0x8fb3c9,A(c),y,zo+0.05)}}};
+ const ceil=(par,[x1,z1,x2,z2],y,tex,col)=>{const w=A(x2)-A(x1),d=B(z2)-B(z1),m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshBasicMaterial({side:THREE.DoubleSide,transparent:par===g}));
+  if(tex)texOn(m,tex,w,d);m.material.color.set(col||0xffffff);m.rotation.x=Math.PI/2;m.position.set((A(x1)+A(x2))/2,y,(B(z1)+B(z2))/2);par.add(m);if(par===g)ofCeil.push(m);return m};
+ const led=(b,x,z,y,w=0.6,d=0.6)=>{b.box(w,0.03,d,0xffffff,A(x),y,B(z));b.box(w+0.05,0.02,d+0.05,0xcfd0cc,A(x),y+0.005,B(z))};
+ const ARM=gridTex('arm',0.6,'#efeee9','#c9c8c2'),YEL=0xefc35b,CORE=0xe7e0cc,WH=0xf3f2ee;
+ const pers=(st,x,z,face,o={})=>{const w=worker(A(x),B(z),st.shirt,{mode:'work',face,hat:st.hair,staff:st,sit:o.sit});
+  if(o.band){const m=new THREE.Mesh(G.box,wm(o.band));m.scale.set(0.52,0.17,0.32);m.position.y=-0.02;w.body.add(m)}
+  const L={el:mkLabel('p',st.name||st.role,null,'p'),p:new V3(A(x),(o.fl2?FL:0)+(o.sit?1.8:2.1),B(z)),b:null,kind:'p',fl:o.fl2?2:1};labels.push(L);pendL.push(L);if(o.fl2)fl2.add(w.g);return w};
+
+ /* ===== 1 этаж ===== */
+ const COR=[-53.6,68.15,-38.65,69.65],OPT=[-44.9,69.8,-38.65,76.35],SUP=[-48.2,69.8,-45.05,76.35],WC=[-50.9,69.8,-48.35,76.35],KL=[-57.0,67.75,-53.75,76.35],STW=[-53.6,69.8,-51.05,76.35];
+ const dOpt=[-40.55,-39.65],dSup=[-46.05,-45.15],dWc=[-50.8,-50.05],dSiz=[-51.95,-51.25],dKl=[68.45,69.35];
+ // стены 1 этажа (до плиты)
+ wb.box(A(-38.65)-A(-53.6),FL,B(68.15)-B(67.75),CORE,(A(-53.6)+A(-38.65))/2,0,(B(67.75)+B(68.15))/2);         // толстая стена к цеху 1
+ wseg(wb,-53.6,69.65,-38.65,69.8,0,FL,CORE,[dOpt,dSup,dWc,dSiz,[-53.6,-52.35,-9,2.75]]);fb.box(A(-52.35)-A(-53.6),0.02,0.15,YEL,(A(-53.6)+A(-52.35))/2,2.74,B(69.725));fb.box(0.02,FL,0.15,YEL,A(-53.6)+0.011,0,B(69.725));fb.box(0.02,2.75,0.15,YEL,A(-52.35)-0.011,0,B(69.725));   // откосы проёма на лестницу
+ for(const x of[-45.05,-48.35,-51.05])wseg(wb,x,69.8,x+0.15,76.35,0,FL,CORE);
+ wseg(wb,-53.75,67.75,-53.6,76.35,0,FL,CORE,[dKl]);wseg(wb,-57.15,67.75,-57.0,76.35,0,FL,CORE);
+ // лестница: 1 марш на юг от коридора, площадка у южной стены с окном, 2 марш на север над складом СИЗ (фото 1927, 1928, 1931)
+ for(let i=0;i<11;i++){const z0=69.8+i*0.3,y=(i+1)*R;ib.box(A(-52.35)-A(-53.6),y,0.3,0x6d7279,(A(-53.6)+A(-52.35))/2,0,B(z0+0.15));ib.box(A(-52.35)-A(-53.6),0.03,0.04,0x4c5056,(A(-53.6)+A(-52.35))/2,y-0.02,B(z0)+0.02)}
+ ib.box(A(-51.05)-A(-53.6),1.7,B(76.35)-B(73.1),0x6d7279,(A(-53.6)+A(-51.05))/2,0,(B(73.1)+B(76.35))/2);
+ for(let j=0;j<11;j++){const z1=73.1-(j+1)*0.3,yt=1.7+(j+1)*R;wb.box(0.15,yt+0.9,0.3,YEL,A(-52.275),0,B(z1+0.15))}   // стенка между маршами — по перилам 2 марша
+ wb.box(0.2,0.06,SL,0x2b2b2b,A(-52.275),(1.7+3.4)/2+0.9-0.03,(B(69.8)+B(73.1))/2,0,th);
+ for(const [x,s] of[[-53.6+0.03,-1],[-52.35-0.03,-1]])fb.box(0.03,0.13,SL,0xc69a62,A(x),0.85+0.85,(B(69.8)+B(73.1))/2,0,-th);   // поручни-панели 1 марша
+ fb.box(0.03,0.13,SL,0xc69a62,A(-51.08),1.7+0.85+0.85,(B(69.8)+B(73.1))/2,0,th);
+ wseg(fb,-53.6,69.8,-53.585,73.1,0,FL,YEL);lin(fb,[-53.6,73.1,-51.05,76.35],0xe6cdb5,1.7,FL,{n:[[-53.6,-51.05]],s:[[-53.4,-52.5,3.05,9]]},9);
+ lin(fb,[-52.2,69.8,-51.05,73.1],0xe6cdb5,1.7,FL,{n:[[-52.2,-51.05]],s:[[-52.2,-51.05]],w:[[69.8,73.1]]},9);
+ for(let j=0;j<11;j++){const z1=73.1-(j+1)*0.3,yt=1.7+(j+1)*R,y1=(z1-69.8)/0.3*R;   // отделка стенки между маршами: жёлтая со стороны 1 марша, бежевая над 2 маршем
+  fb.box(0.02,yt+0.9-y1,0.3,YEL,A(-52.35)-0.011,y1,B(z1+0.15));fb.box(0.02,0.9,0.3,0xe6cdb5,A(-52.2)+0.011,yt,B(z1+0.15))}
+ win(wb,fb,'s',-52.95,3.05,0.9,0.35);                                                                      // окно на площадке, низ (верх — на 2 этаже)
+ // склад СИЗ под 2 маршем: полки, жёлтая дверь с замком
+ shelf(ib,A(-51.85),B(71.4),2.6,0.45,1.5,4,0x8a8f95,0xb59c6d,Math.PI/2,'box');
+ door(wb,true,...dSiz,69.725,0xe5bf62,0xe5bf62);
+ // коридор: плитка, жёлтые стены, панель под дерево, потолок «армстронг» (фото 1921, 1931)
+ const gCor={s:[dOpt,dSup,dWc,dSiz,[-53.6,-52.35,-9,2.75]],w:[dKl],e:[[68.4,69.4]]};
+ lin(fb,COR,YEL,0,FL,gCor);band(fb,COR,0.92,1.92,gCor);
+ door(wb,false,68.4,69.4,-38.66,0x4a2f24,0x4a2f24,2.15,0.04);                                                // дверь с крыльца изнутри
+ ceil(fl2,COR,2.75-FL,ARM);for(const x of[-40.2,-43.8,-47.4,-51.0])led(bb2,x,68.9,2.73-FL);
+ ib.box(0.55,0.85,0.55,0xc4c7ca,A(-52.9),0,B(68.45));ib.box(0.5,0.28,0.38,0x1b1b1d,A(-52.9),0.85,B(68.42));      // холодильник с микроволновкой
+ for(let i=0;i<3;i++)ib.box(0.62,2.1,0.03,0x3a2b24,A(-40.6+i*0.66),0,B(68.2),0,-0.06);                    // тёмные щиты у стены
+ ib.cyl(0.14,0.45,0xb9d6e6,A(-40.0),0.23,B(68.45));ib.cyl(0.03,0.05,0x2f6fc0,A(-40.0),0.48,B(68.45));
+ // оптовые продажи (фото 1922, 1923)
+ const gOpt={n:[dOpt],e:[[72.35,73.85,0.9,2.4]],s:[[-40.7,-39.3,0.9,2.4]]};
+ lin(fb,OPT,0xebdfb9,0,FL,gOpt);win(wb,fb,'e',73.1,0.9,1.5,1.5);win(wb,fb,'s',-40.0,0.9,1.4,1.5);
+ door(wb,true,...dOpt,69.725,WH);ib.box(0.9,0.01,0.6,0x3b3b3b,A(-40.1),0,B(70.2));
+ ceil(fl2,OPT,2.75-FL,ARM);led(bb2,-40.6,71.5,2.73-FL);led(bb2,-43.2,71.5,2.73-FL);led(bb2,-41.8,74.6,2.73-FL,1.2,0.6);
+ cabinet(ib,A(-43.6),B(70.03),1.1,0.45,2.0,0,0xd59d60,[0xe9e2cf,0xb88f56,0x2f5fa8],0.8);cabinet(ib,A(-39.15),B(70.03),0.9,0.45,2.0,0,0xd59d60,[0xe9e2cf,0xb88f56],0.8);
+ for(const z of[71.25,72.95]){pdesk(ib,A(-39.05),B(z),1.4,0.72,Math.PI/2,0xd09a5c);mon(ib,A(-38.85),B(z),Math.PI/2);chair(ib,A(-39.8),B(z),Math.PI/2)}
+ pdesk(ib,A(-41.65),B(74.4),1.6,0.8,-Math.PI/2,0xd09a5c);ib.box(0.34,0.02,0.24,0xb8bcc2,A(-41.8),0.73,B(74.0));       // стол с ноутбуком
+ pdesk(ib,A(-42.45),B(74.4),1.6,0.8,Math.PI/2,0x2a2624,0x3b2d27);for(const z of[74.05,74.75])mon(ib,A(-42.2),B(z),Math.PI/2,0.6,0x7aa3c8);
+ ib.box(0.4,0.005,0.95,0x6a3fa0,A(-42.6),0.73,B(74.4));ib.box(0.18,0.006,0.3,0x2aa198,A(-42.65),0.73,B(74.2));ib.box(0.15,0.006,0.25,0xe0457b,A(-42.55),0.73,B(74.65));
+ chair(ib,A(-43.3),B(74.4),Math.PI/2,0x1b1b1b,0xf2f2f2);chair(ib,A(-40.85),B(74.4),-Math.PI/2,0x1b1b1b,0x8c1f24);
+ ib.box(0.32,1.0,0.32,0xf2f2f2,A(-38.95),0,B(75.3));ib.cyl(0.14,0.4,0x7fbfe6,A(-38.95),1.2,B(75.3));                  // кулер
+ ib.box(0.6,0.7,0.45,0xd59d60,A(-39.6),0,B(76.0));ib.box(0.45,0.25,0.38,0x2b2b2b,A(-39.6),0.7,B(76.0));
+ fb.box(0.85,0.28,0.2,0xf4f4f1,A(-43.6),2.25,B(76.35)-0.11);                                               // кондиционер
+ sign(signTex(256,256,(g,W,H)=>{g.fillStyle='#111';g.font='700 34px Arial';g.textAlign='center';g.textBaseline='middle';
+  for(let i=1;i<=12;i++){const a=i/6*Math.PI;if(i%3===0)g.fillText(String(i),W/2+Math.sin(a)*100,H/2-Math.cos(a)*100);else{g.save();g.translate(W/2+Math.sin(a)*104,H/2-Math.cos(a)*104);g.rotate(a);g.fillRect(-4,-12,8,24);g.restore()}}
+  g.fillRect(W/2-3,H/2-70,6,74);g.save();g.translate(W/2,H/2);g.rotate(2.1);g.fillRect(-3,-95,6,98);g.restore()}),0.95,0.95,A(-38.65)-0.03,2.0,B(71.75),-Math.PI/2,walls);
+ sign(signTex(256,320,(g,W,H)=>{g.fillStyle='#c8202a';g.fillRect(0,0,W,H);g.fillStyle='#6e0f15';for(let y=8;y<H;y+=12)for(let x=8;x<W;x+=12)g.fillRect(x,y,3,3)}),2.7,2.5,A(-44.9)+0.03,1.3,B(71.2),Math.PI/2,walls);   // красная перфопанель
+ ib.box(0.18,0.95,0.5,0x2b2f38,A(-44.78),1.15,B(71.6));
+ sign(signTex(512,256,(g,W,H)=>{const P=[[.05,.55],[.1,.35],[.18,.3],[.22,.2],[.3,.25],[.38,.15],[.5,.12],[.62,.08],[.75,.12],[.85,.1],[.95,.2],[.93,.35],[.85,.45],[.88,.6],[.8,.7],[.72,.62],[.62,.7],[.5,.65],[.4,.72],[.3,.7],[.22,.8],[.15,.72],[.08,.7]];
+  const gr=g.createLinearGradient(0,0,W,H);gr.addColorStop(0,'#3f7a3a');gr.addColorStop(0.6,'#6f9a4a');gr.addColorStop(1,'#9a7a4a');g.fillStyle=gr;g.beginPath();P.forEach(([x,y],i)=>i?g.lineTo(x*W,y*H):g.moveTo(x*W,y*H));g.closePath();g.fill();
+  g.fillStyle='#333';g.font='600 13px Arial';for(const [t,x,y] of[['Москва',.1,.45],['Красноярск',.55,.55],['Чита',.68,.62],['Хабаровск',.86,.62]]){g.fillRect(x*W-2,y*H-2,4,4);g.fillText(t,x*W+5,y*H+4)}}),2.1,1.05,A(-44.9)+0.03,1.75,B(73.85),Math.PI/2,walls);   // карта России
+ // снабжение · Михаил (фото 1924, 1925)
+ const gSup={n:[dSup],s:[[-46.85,-45.55,0.95,2.3]]};
+ lin(fb,SUP,0xf1bb3a,0,FL,gSup);win(wb,fb,'s',-46.2,0.95,1.3,1.35);for(let i=0;i<5;i++)fb.box(0.025,1.35,0.03,0x2b2b2b,A(-46.7+i*0.25),0.95,B(76.35)-0.08);
+ door(wb,true,...dSup,69.725,WH);ceil(fl2,SUP,2.75-FL,ARM);led(bb2,-46.6,72.8,2.73-FL);
+ pdesk(ib,A(-46.65),B(75.95),1.35,0.7,0,0xd9cdb5,0x2b2b2b);mon(ib,A(-46.5),B(76.15),0);chair(ib,A(-46.65),B(75.2),0);ib.box(0.5,0.62,0.2,0x1a1a1a,A(-46.65),0.55,B(74.98));
+ ib.box(0.42,0.62,0.5,0xeeeeea,A(-47.6),0,B(75.95));ib.box(0.6,0.72,0.55,0x5a3b2c,A(-47.8),0,B(74.5));for(let i=0;i<4;i++)ib.box(0.32,0.05,0.24,0xf6f6f2,A(-47.85),0.72+i*0.05,B(74.5));
+ chair(ib,A(-47.85),B(75.25),Math.PI/2,0x5b4335,0x5b4335);ib.box(0.18,0.8,0.42,0x9a9a8f,A(-48.05),0.55,B(75.25));
+ cabinet(ib,A(-45.35),B(70.9),1.0,0.6,2.2,-Math.PI/2,0x7a3424,null,2.15);cabinet(ib,A(-45.35),B(74.0),1.6,0.6,2.1,-Math.PI/2,0x7a3424,[0xf6f6f2,0xe9e2cf],0.8);
+ for(const z of[73.6,74.05])ib.ball(0.17,0.12,0.2,0xf4f4f0,A(-45.35),1.96,B(z));
+ fb.box(0.2,0.28,0.85,0xf4f4f1,A(-45.05)-0.11,2.25,B(73.0));fb.box(0.03,0.62,0.5,0x5a4632,A(-48.2)+0.03,1.45,B(74.0));
+ // туалет (фото 1926)
+ const gWc={n:[dWc]};lin(fb,WC,0x6e3a3d,0,0.85,gWc);lin(fb,WC,0xd6c5b6,0.85,1.65,gWc);lin(fb,WC,YEL,1.65,FL,gWc);
+ door(wb,true,...dWc,69.725,0xf4f2ea);for(let i=0;i<3;i++)fb.box((A(-48.4)-A(-50.85))/3-0.06,0.5,0.02,0xbcd3e0,A(-50.85)+(i+0.5)*(A(-48.4)-A(-50.85))/3,2.15,B(69.8)+0.03);
+ ceil(fl2,WC,2.75-FL,null,0xe9b84f);ib.box(0.38,0.4,0.55,0xf3f3f1,A(-48.75),0,B(71.5));ib.box(0.2,0.38,0.42,0xf3f3f1,A(-48.47),0.4,B(71.5));
+ ib.cyl(0.08,0.7,0xf3f3f1,A(-48.6),0.35,B(72.6));ib.box(0.42,0.15,0.5,0xf3f3f1,A(-48.6),0.7,B(72.6));ib.cyl(0.2,0.6,0x2a6fc0,A(-48.62),0.3,B(70.15));
+ fb.box(0.15,0.25,0.3,0xf4f4f1,A(-50.9)+0.09,1.2,B(72.9));
+ // кабинет кладовщиков: узкий, красные стеллажи с крепежом, окно в южном торце, вешалка и серая дверь в цех (фото 1932, 1933)
+ const gKl={e:[dKl],s:[[-55.63,-54.33,0.95,2.3]]};
+ lin(fb,KL,0xa3a49d,0,FL,gKl);win(wb,fb,'s',-54.98,0.95,1.3,1.35);door(wb,false,...dKl,-53.675,WH);
+ ceil(fl2,KL,2.75-FL,ARM);for(const z of[69.8,72.3,74.8])led(bb2,-55.4,z,2.73-FL);
+ redRack(ib,A(-54.05),B(72.5),6.0,0.6,2.0,5,Math.PI/2);redRack(ib,A(-56.7),B(72.1),5.0,0.6,2.0,5,Math.PI/2,'black');
+ ib.box(0.95,2.05,0.05,0x7b8086,A(-55.45),0,B(67.75)+0.03);ib.box(0.6,0.4,0.15,0x8a8f95,A(-55.45),2.2,B(67.75)+0.08);   // серая дверь в цех и щит
+ for(let i=0;i<4;i++)ib.box(0.16,0.95,0.3,pick([0x2b2f38,0x3d4436,0x55524a,0xd9692b]),A(-54.85+i*0.17),1.0,B(67.75)+0.18);ib.box(0.7,0.35,0.3,0x2b2b2b,A(-54.6),0,B(67.95));
+ ib.box(0.6,0.85,0.5,0xf2f2f2,A(-55.95),0,B(70.6));ib.box(0.35,0.05,0.3,0x9aa0a6,A(-55.95),0.85,B(70.6));
+ ib.box(0.9,0.72,0.6,0x6b5a49,A(-56.35),0,B(75.75));for(let i=0;i<3;i++)ib.box(0.3,0.04,0.22,0xf6f6f2,A(-56.4),0.72+i*0.04,B(75.7));chair(ib,A(-55.5),B(75.5),Math.PI,0x2b2b2b);
+ ib.cyl(0.35,0.35,0xf2f2f2,A(-54.25),0.18,B(75.85));fb.box(0.85,0.28,0.2,0xf4f4f1,A(-56.15),2.3,B(76.35)-0.11);
+ // западная часть 1 этажа — фото нет
+ ceil(fl2,[-61.35,67.75,-57.15,76.35],2.75-FL,null,0xd9d6cf);
+
+ /* ===== 2 этаж (координаты y — от плиты) ===== */
+ const H2=7-FL,COR2=[-53.6,67.75,-44.85,69.65],ACC=[-46.2,69.8,-38.65,76.35],DIR=[-44.7,67.75,-38.65,70.35],dAcc=[-45.95,-45.05],dDir=[68.25,69.15],dW=[68.3,69.2];
+ for(const [x1,z1,x2,z2] of[[-61.35,67.75,-38.65,69.8],[-61.35,69.8,-53.6,76.35],[-51.05,69.8,-38.65,76.35]])ib2.box(A(x2)-A(x1),0.3,B(z2)-B(z1),0x9b968d,(A(x1)+A(x2))/2,-0.3,(B(z1)+B(z2))/2);
+ ib2.box(A(-44.85)-A(-46.2),0.03,B(70.5)-B(69.8),0xd8d5ce,(A(-46.2)+A(-44.85))/2,0.015,(B(69.8)+B(70.5))/2);
+ wseg(wb2,-51.05,69.65,-44.85,69.8,0,H2,CORE,[dAcc]);wseg(wb2,-51.05,69.8,-50.9,76.35,0,H2,CORE);wseg(wb2,-46.35,69.8,-46.2,76.35,0,H2,CORE);
+ wseg(wb2,-44.85,67.75,-44.7,70.5,0,H2,CORE,[dDir]);wseg(wb2,-44.7,70.35,-38.65,70.5,0,H2,CORE);wseg(wb2,-53.75,67.75,-53.6,76.35,0,H2,CORE,[dW]);
+ // 2 марш (висит над складом СИЗ), площадка, ограждение у проёма: белая панель, стекло, чёрный поручень (фото 1928)
+ for(let j=0;j<11;j++){const z1=73.1-(j+1)*0.3,yt=1.7+(j+1)*R-FL;ib2.box(A(-51.05)-A(-52.2),0.2,0.3,0x6d7279,(A(-52.2)+A(-51.05))/2,yt-0.2,B(z1+0.15));ib2.box(A(-51.05)-A(-52.2),0.03,0.04,0x4c5056,(A(-52.2)+A(-51.05))/2,yt-0.02,B(z1+0.3)-0.02)}
+ ib2.box(A(-51.05)-A(-52.2),0.1,SL,0x8d8f8c,(A(-52.2)+A(-51.05))/2,(1.52+3.22)/2-0.05-FL,(B(69.8)+B(73.1))/2,0,th);
+ ib2.box(A(-52.35)-A(-53.6),0.5,0.05,0xf0eee8,(A(-53.6)+A(-52.35))/2,0,B(69.8));ib2.box(A(-52.35)-A(-53.6),0.45,0.02,0xc9dde6,(A(-53.6)+A(-52.35))/2,0.5,B(69.8));ib2.box(A(-52.35)-A(-53.6),0.05,0.06,0x2b2b2b,(A(-53.6)+A(-52.35))/2,0.95,B(69.8));
+ win(wb2,fb2,'s',-52.95,3.4-FL,0.9,0.65);lin(fb2,STW,0xe6cdb5,0,H2,{n:[[-53.6,-51.05]],s:[[-53.4,-52.5,-9,0.72]]},9);
+ bb2.box(A(-51.05)-A(-53.6),0.3,0.02,0xe6cdb5,(A(-53.6)+A(-51.05))/2,-0.3,B(69.8)+0.011);   // торец плиты над лестницей
+ // коридор 2 этажа
+ lin(fb2,COR2,0xe8cfb6,0,H2,{s:[[-53.6,-51.05,-9,9],dAcc],w:[dW],e:[dDir]});band(fb2,COR2,0.82,0.97,{s:[[-53.6,-51.05],dAcc],w:[dW],e:[dDir]});
+ door(wb2,true,...dAcc,69.725,0xb57b3e,0xb57b3e);door(wb2,false,...dDir,-44.775,0xb57b3e,0xb57b3e);door(wb2,false,...dW,-53.675,0x3a3330,0x3a3330);
+ ib2.box(0.9,2.05,0.04,0x6d7377,A(-51.6),0,B(67.75)+0.03);ib2.box(1.02,2.1,0.03,0x9a9d9f,A(-51.6),0,B(67.75)+0.015);       // серая дверь напротив лестницы
+ ceil(g,COR2,FL+2.75,ARM);ceil(g,[-53.6,69.8,-51.05,76.35],FL+2.75,ARM);for(const x of[-52.4,-48.6,-46.0])led(rf,x,68.7,FL+2.73);
+ // бухгалтерия (фото 1929, 1930)
+ const gAcc={n:[[-46.2,-44.85]],e:[[72.65,73.95,1.2,2.7],[74.95,76.25,1.2,2.7]],s:[[-44.25,-42.95,1.2,2.7]]},ACCr=[-46.2,70.5,-38.65,76.35],NK=[-46.2,69.8,-44.85,70.5];
+ lin(fb2,ACCr,0xefdfa4,0,H2,gAcc);band(fb2,ACCr,0.8,1.3,gAcc,0xc9a26a);lin(fb2,NK,0xefdfa4,0,H2,{n:[dAcc],s:[[-46.2,-44.85]]});band(fb2,NK,0.8,1.3,{n:[dAcc],s:[[-46.2,-44.85]]},0xc9a26a);
+ for(const z of[73.3,75.6])win(wb2,fb2,'e',z,1.2,1.3,1.5);win(wb2,fb2,'s',-43.6,1.2,1.3,1.5);
+ for(const z of[73.3,75.6]){ib2.box(0.1,0.55,1.1,0xf2f2f2,A(-38.75),0.25,B(z));fb2.box(0.03,1.9,0.5,0xe8d8a8,A(-38.74),0.95,B(z-0.95))}   // радиаторы, вертикальные жалюзи
+ ib2.box(0.9,0.55,0.1,0xf2f2f2,A(-43.6),0.25,B(76.25));
+ ceil(g,ACCr,FL+2.75,ARM);ceil(g,NK,FL+2.75,ARM);for(const [x,z] of[[-40.3,72.2],[-43.3,72.2],[-40.3,75.0],[-43.3,75.0]])led(rf,x,z,FL+2.73,1.2,0.6);
+ fb2.box(0.85,0.28,0.2,0xf4f4f1,A(-39.6),2.3,B(70.5)+0.11);
+ pdesk(ib2,A(-41.8),B(71.45),1.4,0.7,0,0xd09a5c);mon(ib2,A(-41.8),B(71.3),0);chair(ib2,A(-41.8),B(70.85),0,0x9e1f26);
+ cabinet(ib2,A(-43.3),B(70.72),0.9,0.4,2.1,0,0x7a3524,[0xf2f2f2,0x2b2b2b,0xc0392b,0x2f8a57]);cabinet(ib2,A(-44.3),B(70.72),0.8,0.4,2.0,0,0xc9cdd0,[0x2b2b2b,0xc0392b,0x2f5fa8],0);
+ pdesk(ib2,A(-42.6),B(73.3),1.6,0.8,Math.PI,0xc98d4e,0x5a3b2c);mon(ib2,A(-42.6),B(72.98),Math.PI);chair(ib2,A(-42.6),B(74.05),Math.PI,0x1d1e21);
+ pdesk(ib2,A(-40.95),B(73.3),1.6,0.8,Math.PI,0x5a3b2c,0x4a3024);ib2.box(0.55,0.42,0.48,0xeeeeee,A(-40.55),0.75,B(73.2));ib2.box(0.5,0.1,0.42,0x9a9a9a,A(-40.55),1.17,B(73.2));
+ // шкаф-купе во всю западную стену: открытые полки, двери под дерево, зеркало (фото 1930)
+ for(const [z,L,c,f,d] of[[75.3,0.6,0x7a3524,1,0.8],[74.55,0.9,0xc08a52,0,2.45],[73.6,1.0,0xc08a52,1,0],[72.7,0.8,0xc08a52,0,2.45],[71.9,0.8,0xc08a52,0,2.45],[71.25,0.5,0x7a3524,1,0]])
+  cabinet(ib2,A(-45.92),B(z),L,0.55,2.55,Math.PI/2,c,f?[0xf2f2f2,0x2b2b2b,0xc0392b,0x2f8a57]:null,d);
+ ib2.box(0.02,2.3,0.74,0xc9d3d6,A(-45.63),0.1,B(71.9));
+ ib2.box(1.9,0.42,0.8,0x1e1e20,A(-39.9),0,B(70.95));ib2.box(1.9,0.45,0.18,0x1e1e20,A(-39.9),0.42,B(70.62));for(const s of[-1,1])ib2.box(0.18,0.62,0.8,0x1e1e20,A(-39.9)+s*0.95,0,B(70.95));   // кожаный диван
+ fb2.box(0.42,0.6,0.02,0xf4f4f1,A(-40.6),1.25,B(70.5)+0.03);
+ // кабинет директора и западная часть — фото нет: только пол и потолок
+ lin(fb2,DIR,0xefe6c8,0,H2,{w:[dDir]});ceil(g,DIR,FL+2.75,ARM);
+ // люди: имена — где Илья назвал
+ pers(STAFF.ofOpt[0],-40.85,74.4,-Math.PI/2,{sit:true});pers(STAFF.ofSup[0],-47.2,71.0,0.6,{band:0x7a2433});
+ pers(STAFF.ofKl[0],-55.5,75.5,Math.PI,{sit:true});pers(STAFF.ofKl[1],-55.85,72.2,-Math.PI/2);
+ pers(STAFF.ofAcc[0],-41.8,70.85,0,{sit:true,fl2:true})}
+{const F2=OFF_F,y2=y=>y-F2;
+ const ob=building({id:'b1o',name:'Офис 1 · отдел продаж',mr:[c1x1,c1z(0.85),c1x2,c1z2],h:7,F:F2,wall:BRICK,trim:0xb9b6ae,roof:0x8d8f91,parapet:0xc9c6be,label:false,windows:false,extra:office1,
+  rooms:[{id:'ofCor',name:'Коридор',mr:[-53.6,68.15,-38.65,69.65],walls:false,tint:0x8f9498,ly:1.2},
+   {id:'ofOpt',name:'Оптовые продажи',mr:[-44.9,69.8,-38.65,76.35],walls:false,tint:0xa67b52},
+   {id:'ofSup',name:'Снабжение · Михаил',mr:[-48.2,69.8,-45.05,76.35],walls:false,tint:0x7b6d5f},
+   {id:'ofWc',name:'Туалет',mr:[-50.9,69.8,-48.35,76.35],walls:false,tint:0x5b3734},
+   {id:'ofSiz',name:'Склад СИЗ',mr:[-52.2,69.8,-51.05,73.1],walls:false,tint:0x9a958c,ly:1.2},
+   {id:'ofSt',name:'Лестница',mr:[-53.6,69.8,-52.35,73.1],walls:false,tint:0x6d7279,ly:2.6},
+   {id:'ofKl',name:'Кладовщики',mr:[-57.0,67.75,-53.75,76.35],walls:false,tint:0x9b9a94},
+   {id:'ofW1',name:'Нет фото',mr:[-61.35,67.75,-57.15,76.35],walls:false,tint:0xb9b5ad},
+   {id:'ofCor2',fl:2,name:'Коридор 2 этажа',mr:[-53.6,67.75,-44.85,69.65],walls:false,tint:0x737a82,ly:1.2},
+   {id:'ofAcc',fl:2,name:'Бухгалтерия',mr:[-46.2,70.5,-38.65,76.35],walls:false,tint:0xd8d5ce},
+   {id:'ofDir',fl:2,name:'Директор',mr:[-44.7,67.75,-38.65,70.35],walls:false,tint:0xc9c4b8},
+   {id:'ofM2',fl:2,name:'Нет фото',mr:[-50.9,69.8,-46.35,76.35],walls:false,tint:0xb9b5ad},
+   {id:'ofW2',fl:2,name:'Нет фото',mr:[-61.35,67.75,-53.75,76.35],walls:false,tint:0xb9b5ad}]});
+ const TX={ofCor:gridTex('tG',0.3,'#8f9498','#767b80'),ofWc:gridTex('tM',0.3,'#5b3734','#43272a'),ofAcc:gridTex('tL',0.3,'#dcd9d2','#c2bfb7'),ofCor2:gridTex('tB',0.3,'#737a82','#5d636a'),
+  ofOpt:gridTex('lO',0.8,'#a67b52','#8a6340',2,1),ofSup:gridTex('lS',0.8,'#7b6d5f','#62564a',2,1)};
+ for(const rm of ob.rooms)if(TX[rm.id])texOn(rm.floor,TX[rm.id],rm.R.w,rm.R.d);
+ anims.push(()=>{const o=1-ob.c;for(const m of ofCeil){m.material.opacity=o;m.visible=ob.c<0.97}});
+ // фасад: окна 1 этажа — в нижних стенах, 2 этажа, кондиционер и вывеска — в стенах 2 этажа
+ const X0=WX(c1x2)+0.19,w=new Batch(),w2=new Batch();
+ w.box(0.08,1.5,1.5,0xf4f4f2,X0,0.9,WZ(73.1));w.box(0.1,1.3,1.3,0x8fb3c9,X0+0.01,1.0,WZ(73.1));
+ for(const z of[73.3,75.6]){w2.box(0.08,1.5,1.5,0xf4f4f2,X0,y2(4.6),WZ(z));w2.box(0.1,1.3,1.3,0x8fb3c9,X0+0.01,y2(4.7),WZ(z))}
+ w2.box(0.35,0.6,0.85,0xf1f1ef,X0+0.15,y2(5.5),WZ(69.7));w.box(0.06,F2,0.1,0x8e8f8c,X0+0.05,0,WZ(68.0));w2.box(0.06,6.6-F2,0.1,0x8e8f8c,X0+0.05,0,WZ(68.0));
+ w.build(ob.walls);w2.build(ob.walls2);
  sign(signTex(600,250,(g,W,H)=>{const gr=g.createLinearGradient(0,0,W,H);gr.addColorStop(0,'#cfe3f2');gr.addColorStop(1,'#f7f9fb');g.fillStyle=gr;g.fillRect(0,0,W,H);
   mountains(g,170,92,1.9,'#8a9cc0');txt(g,'ALASKA',W/2,80,70,'#ffffff',900);txt(g,'КРАСНОЯРСКИЙ',W/2,150,50,'#c4378f',900);txt(g,'ЗАВОД ПРИЦЕПОВ',W/2,207,50,'#c4378f',900);
-  g.strokeStyle='#9aa3ad';g.lineWidth=6;g.strokeRect(3,3,W-6,H-6)}),3.5,1.45,X0+0.06,3.55,WZ(73.2),Math.PI/2,par);
- sign(signTex(120,170,(g,W,H)=>{g.fillStyle='#2b3f95';g.fillRect(0,0,W,H);txt(g,'АЛЯСКА',W/2,26,17,'#dfe6ff');txt(g,'УПТК',W/2,95,40,'#ffffff',900)}),0.62,0.9,X0+0.06,1.75,WZ(71.4),Math.PI/2,par)}
+  g.strokeStyle='#9aa3ad';g.lineWidth=6;g.strokeRect(3,3,W-6,H-6)}),3.5,1.45,X0+0.06,y2(3.55),WZ(73.2),Math.PI/2,ob.walls2);
+ sign(signTex(120,170,(g,W,H)=>{g.fillStyle='#2b3f95';g.fillRect(0,0,W,H);txt(g,'АЛЯСКА',W/2,26,17,'#dfe6ff');txt(g,'УПТК',W/2,95,40,'#ffffff',900)}),0.62,0.9,X0+0.06,1.75,WZ(71.4),Math.PI/2,ob.walls)}
 // кирпичная арка «ALASKA · Отдел продаж» у северного края офиса 1, вплотную к стене цеха (фото 1709, видео 0:06 — старт обхода)
 {const w=world,BR=0xb4523a,za=c1z(0.85)+1.5;w.at(WX(c1x2)+0.2,WZ(za),-Math.PI/2,()=>{
  for(const s of[-1,1])w.box(0.55,2.6,1.8,BR,s*1.1,0,-0.9);
@@ -1053,7 +1254,7 @@ flowM([[190,100],[158,100],[150,82],[140,72],[128,65.9],[125.6,33.9],[134.4,-6.1
 /* ---------- данные для карточек ---------- */
 Object.assign(INFO,{
  b1:{tag:'Корпус',title:'Цех 1 · корпус 6/1',text:'Улица Айвазовского, 6/1. По 2ГИС ≈23×62 м (OSM даёт 19×54). Стены из серого профлиста, внизу кирпич. Внутри по схеме, с севера на юг: сварка осей и трапов, резка, сварка рам, Сборка 1, в южном торце кирпичный 2-этажный офис 1 с аркой «Отдел продаж» и табличкой УПТК. К восточной стене примыкают две пристройки с 2ГИС: маленькая северная (склад от ЛГЦ для сварки) и длинная средняя (склад осей, трапов и крупного).',ask:['В средней пристройке на 2ГИС стоит метка «Планета фанеры 24». Пристройка ваша, это и есть склад осей и трапов?','Где внутри цеха границы участков: резка, сварка, Сборка 1?']},
- b1o:{tag:'Офис',title:'Офис 1 · отдел продаж',text:'Кирпичное 2-этажное здание в южном торце цеха 1. На восточной стене кирпичная арка «ALASKA · Отдел продаж», вывеска «Красноярский завод прицепов», табличка УПТК (фото 1709). Отсюда начинается видео-обход.',ask:['Отдел продаж сидит здесь или в торце корпуса 6 ст1, или в обоих местах?']},
+ b1o:{tag:'Офис',title:'Офис 1 · отдел продаж',text:'Кирпичное 2-этажное здание в южном торце цеха 1. На восточной стене кирпичная арка «ALASKA · Отдел продаж», вывеска «Красноярский завод прицепов», табличка УПТК (фото 1709). Внутри два этажа (фото 1920–1933): внизу коридор, оптовые продажи, снабжение, туалет, лестница и кладовщики, наверху бухгалтерия и директор. Приближайте: сначала откроется 2 этаж, ещё ближе — 1 этаж.',ask:['Верно ли стоят комнаты 2 этажа: бухгалтерия справа по коридору, директор в торце?']},
  b1a:{tag:'Склад',title:'Склад осей, трапов и крупного',text:'Отдельное оцинкованное здание впритык к восточной стене цеха 1, рядом с заготовкой металла и сваркой рамы.',ask:[]},
  b1c:{tag:'Склад',title:'Склад запчастей для сварки из ЛГЦ',text:'Маленький склад у торца цеха 1.',ask:[]},
  b2a:{tag:'Корпус',title:'Корпус 6 ст1',text:'По 2ГИС и вашим подписям: на севере песко и узкое крыло «Тента», южнее маляр, цех 2 (Сборка 2), на восточном торце офис и отдел продаж со входом с востока.',ask:[]},
@@ -1068,7 +1269,19 @@ Object.assign(INFO,{
  weld:{tag:'Шаг 2',title:'Сварка рамы',text:'Из заготовок варят раму. Дальше рама идёт одним из двух путей: на пескоструй и покраску, или на улицу ждать отгрузки в цинк.',ask:['Сколько сварочных постов и сварщиков?','Сколько времени уходит на одну раму?','Кто решает, какая рама пойдёт в цинк, а какая в покраску? Это зависит от модели прицепа?']},
  asm1:{tag:'Шаг 5',title:'Сборка 1',text:'Первый участок сборки, в корпусе 6/1.',ask:['Чем Сборка 1 отличается от Сборки 2: разные модели, разные бригады?','Что ставится на раму и в каком порядке: ось, колёса, пол, борта, свет, тент?','Сколько прицепов собирается за день?']},
  asm2:{tag:'Шаг 5',title:'Сборка 2',text:'Второй участок сборки, в корпусе 6 ст1, рядом с маляркой и мини-складом.',ask:['Сколько прицепов собирается здесь за день?','Сколько человек на сборке?']},
- off1:{tag:'Офис',title:'Офис 1',text:'Кирпичный 2-этажный офис в южном торце цеха 1: коридоры, кабинеты, лестница (фото 1729–1743).',ask:['Кто сидит в офисе: продажи, снабжение, бухгалтерия, мастер?']},
+ ofCor:{tag:'Офис · 1 этаж',title:'Коридор',text:'От крыльца на запад. Серая плитка, жёлтые стены с панелью под дерево. Слева двери: оптовые продажи, снабжение, туалет, склад СИЗ под лестницей, лестница; прямо — кабинет кладовщиков (фото 1921, 1931).',ask:[]},
+ ofOpt:{tag:'Офис · 1 этаж',title:'Оптовые продажи',text:'Первая дверь слева. Ламинат, бежевые стены, окно на восток с большими часами, окно на юг, кондиционер. Столы у окна, в середине стол с двумя мониторами и игровым креслом, на западной стене карта России и красная перфопанель (фото 1922, 1923).',ask:['Сколько человек сидит в оптовых продажах и как их зовут?']},
+ ofSup:{tag:'Офис · 1 этаж',title:'Снабжение · Михаил',text:'Вторая дверь слева. Жёлтые стены, окно на юг с решёткой, стол с монитором, вишнёвые шкафы с касками и бумагами, кондиционер, бронзовое панно (фото 1924, 1925).',ask:[]},
+ ofWc:{tag:'Офис · 1 этаж',title:'Туалет',text:'Третья дверь. Внизу бордовая плитка, выше бежевая с узором, над дверью остекление (фото 1926).',ask:[]},
+ ofSiz:{tag:'Офис · 1 этаж',title:'Склад СИЗ под лестницей',text:'Четвёртая дверь, под вторым маршем: расходники и СИЗ (со слов Ильи). Внутри не снято, полки условные.',ask:['Есть фото склада под лестницей?']},
+ ofSt:{tag:'Офис',title:'Лестница',text:'Первый марш от коридора на юг, площадка у южной стены с окном, второй марш обратно на север (фото 1927, 1928). Число ступеней — по фото примерно.',ask:[]},
+ ofKl:{tag:'Офис · 1 этаж',title:'Кабинет кладовщиков',text:'Дверь в торце коридора. Узкий, ≈3,3 м, вытянут с севера на юг. Вдоль стен красные стеллажи с крепежом в жёлтых и синих ящиках, в дальнем торце окно с кондиционером, у входа вешалка и серая железная дверь (фото 1932, 1933).',ask:['Серая железная дверь у вешалки ведёт в цех 1?']},
+ ofW1:{tag:'Офис · 1 этаж',title:'Западная часть 1 этажа',text:'За кабинетом кладовщиков, фото нет.',ask:['Что в западной части 1 этажа за кабинетом кладовщиков?']},
+ ofCor2:{tag:'Офис · 2 этаж',title:'Коридор 2 этажа',text:'Лестница выходит в коридор: напротив серая дверь, слева тёмная (фото 1928). По коридору справа бухгалтерия, в торце узкий кабинет директора (со слов Ильи).',ask:['Куда ведут серая дверь напротив лестницы и тёмная дверь слева?']},
+ ofAcc:{tag:'Офис · 2 этаж',title:'Бухгалтерия',text:'Светлая плитка, жёлтые стены, два окна на восток с вертикальными жалюзи. Столы с мониторами, МФУ, шкафы с папками, шкаф-купе с зеркалом, чёрный кожаный диван (фото 1929, 1930).',ask:['Сколько человек в бухгалтерии?']},
+ ofDir:{tag:'Офис · 2 этаж',title:'Кабинет директора',text:'Узкий кабинет (со слов Ильи). Фото нет, поэтому пустой.',ask:['Пришлёте фото кабинета директора?']},
+ ofM2:{tag:'Офис · 2 этаж',title:'Часть 2 этажа без фото',text:'Между лестницей и бухгалтерией. Что здесь — не знаю.',ask:['Что на 2 этаже между лестницей и бухгалтерией?']},
+ ofW2:{tag:'Офис · 2 этаж',title:'Западная часть 2 этажа',text:'Над кабинетом кладовщиков, за тёмной дверью из коридора. Фото нет.',ask:['Что на 2 этаже в западной части?']},
  cont5:{tag:'Склад',title:'Склад · два контейнера 5 т',text:'По видео-обходу: у отдела продаж склад из двух 5-тонных контейнеров.',ask:['Что хранится в этих контейнерах?']},
  off2:{tag:'Офис',title:'Офис · отдел продаж',text:'Восточный торец корпуса 6 ст1, вход с востока.',ask:['Кто работает в отделе продаж?']},
  whLgc:{tag:'Склад',title:'Склад от ЛГЦ для сварки',text:'Заготовки из ЛГЦ лежат здесь, пока их не заберут в сварку.',ask:[]},
@@ -1122,10 +1335,10 @@ function panBy(dx,dy){const wpp=viewH()/camS.zoom/innerHeight,az=camS.az;
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),ground=new THREE.Plane(new V3(0,1,0),0);
 /* вид с земли: камера на высоте глаз в точке съёмки фото, угол обзора как у iPhone (24 мм ≈ 72°, 14 мм ≈ 102° по ширине) */
 const pcam=new THREE.PerspectiveCamera(60,1,0.3,3000);let GV=null,phOv=0;const RCAM=()=>GV?pcam:cam;
-function gvApply(){const a=innerWidth/innerHeight;pcam.aspect=a;pcam.fov=(GV.vf||2*Math.atan(Math.tan(GV.h/2)/Math.max(a,1)))*180/Math.PI;pcam.position.set(GV.x,1.6,GV.z);
- pcam.lookAt(GV.x+Math.cos(GV.pitch)*Math.cos(GV.yaw),1.6+Math.sin(GV.pitch),GV.z-Math.cos(GV.pitch)*Math.sin(GV.yaw));pcam.updateProjectionMatrix()}
+function gvApply(){const a=innerWidth/innerHeight;pcam.aspect=a;pcam.fov=(GV.vf||2*Math.atan(Math.tan(GV.h/2)/Math.max(a,1)))*180/Math.PI;pcam.position.set(GV.x,GV.y,GV.z);
+ pcam.lookAt(GV.x+Math.cos(GV.pitch)*Math.cos(GV.yaw),GV.y+Math.sin(GV.pitch),GV.z-Math.cos(GV.pitch)*Math.sin(GV.yaw));pcam.updateProjectionMatrix()}
 function gvSet(i){const n=PLAN.viewpoints.length;i=(i+n)%n;const v=PLAN.viewpoints[i],dx=v.look[0]-v.pos[0],dz=v.look[1]-v.pos[1];
- GV={i,x:X(213)+v.pos[0]+sx(v.look[0])-v.look[0],z:WZ(v.pos[1]),yaw:Math.atan2(-dz,dx),pitch:(v.pitch??1.7)*Math.PI/180,h:v.f35?2*Math.atan(17.3/v.f35):0,vf:v.vfov?v.vfov*Math.PI/180:0};
+ GV={i,x:X(213)+v.pos[0]+sx(v.look[0])-v.look[0],z:WZ(v.pos[1]),y:v.y??1.6,yaw:Math.atan2(-dz,dx),pitch:(v.pitch??1.7)*Math.PI/180,h:v.f35?2*Math.atan(17.3/v.f35):0,vf:v.vfov?v.vfov*Math.PI/180:0};
  const src=window.REF_PHOTOS&&window.REF_PHOTOS[v.photo];$('#photo').hidden=false;$('#gv').classList.add('on');
  $('#phTitle').textContent=v.title;$('#phMeta').textContent=v.photo+' · '+v.time+' · '+(v.f35?v.f35+' мм':'кадр видео')+(src?' · точка съёмки оценена, ±5 м':' · само фото есть в закрытой версии');
  $('#phImg').hidden=!src;$('#phOv').hidden=!src;if(src){$('#phImg').src=src;$('#phOver').src=src}$('#phOver').hidden=!(src&&phOv);$('#phOver').classList.toggle('tall',!!v.vfov);buildings.forEach(b=>b.open=false);gvGround(true)}
@@ -1151,7 +1364,8 @@ cv.addEventListener('pointermove',e=>{const p=ptrs.get(e.pointerId);if(!p)return
 const up=e=>{ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(ptrs.size===0){cv.classList.remove('drag');if(moved<6&&down&&e.type==='pointerup')pickAt(e.clientX,e.clientY)}};
 cv.addEventListener('pointerup',up);
 const tip=document.getElementById('tip');
-function workerAt(cx,cy){ndc.set(cx/innerWidth*2-1,-(cy/innerHeight)*2+1);ray.setFromCamera(ndc,RCAM());const h=ray.intersectObjects(workerMeshes.filter(m=>m.parent.visible),false)[0];return h&&h.object.userData.w}
+const shown=o=>{for(;o;o=o.parent)if(!o.visible)return false;return true};
+function workerAt(cx,cy){ndc.set(cx/innerWidth*2-1,-(cy/innerHeight)*2+1);ray.setFromCamera(ndc,RCAM());const h=ray.intersectObjects(workerMeshes.filter(shown),false)[0];return h&&h.object.userData.w}
 function showTip(w,cx,cy){tip.hidden=false;tip.innerHTML=`<b>${w.name||w.role}</b><span>${w.name?w.role:'Имя уточню у вас'}</span><ul>${w.fn.map(f=>'<li>'+f+'</li>').join('')}</ul>`;
  const x=Math.min(cx+16,innerWidth-250),y=Math.min(cy+16,innerHeight-tip.offsetHeight-10);tip.style.left=x+'px';tip.style.top=y+'px'}
 cv.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse'||ptrs.size)return;const w=workerAt(e.clientX,e.clientY);if(w){showTip(w,e.clientX,e.clientY);cv.style.cursor='help'}else{tip.hidden=true;cv.style.cursor=''}});cv.addEventListener('pointercancel',up);
@@ -1188,7 +1402,7 @@ function hideHint(){if(hintT)return;hintT=setTimeout(()=>{$('#hint').style.opaci
 
 /* ---------- клики, карточки ---------- */
 function pickAt(cx,cy){const wk=workerAt(cx,cy);if(wk){showTip(wk,cx,cy);return}tip.hidden=true;ndc.set(cx/innerWidth*2-1,-(cy/innerHeight)*2+1);ray.setFromCamera(ndc,RCAM());
- const cand=hits.filter(m=>m.visible&&(!m.material.transparent||m.material.opacity>0.5)&&(m.parent?m.parent.visible:true));
+ const cand=hits.filter(m=>shown(m)&&(!m.material.transparent||m.material.opacity>0.5));
  const h=ray.intersectObjects(cand,false)[0];if(!h){closeInfo();return}
  const id=h.object.userData.id;const b=buildings.find(x=>x.cfg.id===id);
  if(b&&!b.locked){b.open=true;for(const p of['b1','b2'])if(b.cfg.id.startsWith(p))buildings.filter(x=>x.cfg.id.startsWith(p)).forEach(x=>x.open=true)}
@@ -1200,7 +1414,7 @@ function openInfo(id){const d=INFO[id];if(!d)return;$('#info').hidden=false;$('#
 function closeInfo(){$('#info').hidden=true}
 $('#infoX').onclick=closeInfo;
 
-function focusRoom(id,zoom=3.4){let p=null;for(const b of buildings)for(const rm of b.rooms)if(rm.id===id)p=rm.R;
+function focusRoom(id,zoom=3.4){let p=null;for(const b of buildings)for(const rm of b.rooms)if(rm.id===id){p=rm.R;if(rm.fl===2)zoom=Math.min(zoom,2.6)}
  const L=labels.find(l=>l.el.dataset.id===id);if(!p&&L&&L.p)p={x:L.p.x,z:L.p.z};if(!p)return;
  Object.assign(camT,{tx:p.x,tz:p.z,zoom});openInfo(id)}
 const STEPS=[['cut','1','Приёмка и резка'],['weld','2','Сварка рамы'],['waitSand','·','Очередь на пескоструй',1],['sand','3','Пескоструй'],['paint','4','Малярка'],['distrib','·','Ждут распределения',1],['asm2','5','Сборка 1 и 2'],['ship1','→','Отправка дилерам']];
@@ -1211,7 +1425,7 @@ if(MOBILE||innerWidth<760){$('#steps').classList.add('min');$('#stepsMin').textC
 
 world.build(scene);
 /* ---------- цикл ---------- */
-const CUT_ZOOM=2.1;let last=performance.now(),simMin=8*60;
+const CUT_ZOOM=2.1,FLOOR_ZOOM=3.2;let last=performance.now(),simMin=8*60;
 const tmp=new V3();
 function frameLoop(now){
  const dt=Math.min(0.05,(now-last)/1000);last=now;const t=now/1000;
@@ -1219,20 +1433,24 @@ function frameLoop(now){
  for(const b of buildings){
   const want=b.locked||GV?0:(roofMode===1?1:roofMode===2?(b.open?1:0):((camS.zoom>=CUT_ZOOM||b.open)?1:0));
   b.c+=(want-b.c)*Math.min(1,dt*6);if(Math.abs(want-b.c)<0.002)b.c=want;
-  b.walls.scale.y=1-0.9*b.c;if(b.roofIn){b.roofIn.material.opacity=1-b.c;b.roofIn.visible=b.c<0.97}if(b.roof){b.roof.material.opacity=1-b.c;b.roof.visible=b.c<0.97;b.roof.castShadow=b.c<0.5}}
+  if(b.fl2){const w2=b.c>0.5&&!GV&&camS.zoom>=FLOOR_ZOOM?1:0;b.c2+=(w2-b.c2)*Math.min(1,dt*6);if(Math.abs(w2-b.c2)<0.002)b.c2=w2;   // ближе — 1 этаж
+   b.walls.scale.y=1-0.75*b.c2;b.walls2.scale.y=1-0.75*b.c;b.walls2.visible=b.fl2.visible=b.c2<0.5}
+  else b.walls.scale.y=1-0.9*b.c;if(b.roofIn){b.roofIn.material.opacity=1-b.c;b.roofIn.visible=b.c<0.97}if(b.roof){b.roof.material.opacity=1-b.c;b.roof.visible=b.c<0.97;b.roof.castShadow=b.c<0.5}}
  if(GV)gvApply();
  for(const f of anims)f(dt,t);stepWorkers(dt,t);
  for(const [m,s] of ptMats)m.size=Math.max(2,s*camS.zoom*2.2)*Math.min(devicePixelRatio,2)/1.5;
  // подписи
- const W=innerWidth,H=innerHeight,gIn=GV&&buildings.find(b=>!b.cfg.rot&&GV.x>b.r.x1&&GV.x<b.r.x2&&GV.z>b.r.z1&&GV.z<b.r.z2);   // вид с земли изнутри цеха
+ const W=innerWidth,H=innerHeight,gIn=GV&&buildings.find(b=>!b.cfg.rot&&GV.x>b.r.x1&&GV.x<b.r.x2&&GV.z>b.r.z1&&GV.z<b.r.z2),gFl=gIn&&gIn.fl2?(GV.y>gIn.cfg.F?2:1):0;   // вид с земли изнутри цеха
  for(const L of labels){const p=L.obj?tmp.copy(L.obj.position).add(L.off):tmp.copy(L.p);
   let vis=true;
   if(L.kind==='r')vis=L.b&&L.b.c>0.6&&camS.zoom>1.5;
   else if(L.kind==='b')vis=!L.b||L.b.c<0.4;
   else if(L.kind==='p')vis=L.b&&L.b.c>0.6&&camS.zoom>2.6;
+  else if(L.kind==='f'){vis=L.b.c>0.6;const tx=L.b.c2<0.5?'2 этаж · ближе — 1 этаж':'1 этаж · дальше — 2 этаж';if(L.t!==tx){L.t=tx;L.el.textContent=tx}}
   else vis=camS.zoom>1.3;
+  if(L.fl&&L.b&&L.b.fl2)vis=vis&&(L.fl===2?L.b.c2<0.5:L.b.c2>=0.5);   // подписи только текущего этажа
   if(GV&&L.kind!=='b')vis=false;
-  if(gIn)vis=L.b===gIn&&L.kind==='p';   // внутри видны только подписи станков этого цеха, без соседних зданий сквозь стены
+  if(gIn)vis=L.b===gIn&&L.kind==='p'&&(!gFl||L.fl===gFl);   // внутри видны только подписи станков этого цеха, без соседних зданий сквозь стены
   p.project(RCAM());if(p.z>1)vis=false;const x=(p.x*0.5+0.5)*W,y=(-p.y*0.5+0.5)*H;
   if(x<-120||x>W+120||y<-40||y>H+40)vis=false;
   L.el.classList.toggle('hide',!vis);if(vis)L.el.style.transform=`translate(${x|0}px,${y|0}px) translate(-50%,-100%)`}
