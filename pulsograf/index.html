@@ -1,0 +1,911 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<title>Пульсограф</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@500;700&display=swap">
+<style>
+/* Layout: one narrow instrument column — scope on top, readouts, then result, diary, notes. */
+:root {
+  --bg: #EDF1F0;
+  --surface: #FFFFFF;
+  --sunk: #E2E8E6;
+  --ink: #152124;
+  --muted: #586A6D;
+  --line: #CFD9D7;
+  --pulse: #C0233B;
+  --calm: #1D7468;
+  --warn: #A86A12;
+  --on-accent: #FFFFFF;
+  --f-display: "Unbounded", "Golos Text", system-ui, sans-serif;
+  --f-body: "Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-data: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0C1315; --surface: #142022; --sunk: #0F1A1C; --ink: #E2EBE9; --muted: #8DA1A1;
+    --line: #233539; --pulse: #FF5C70; --calm: #4CBFAC; --warn: #E2A646; --on-accent: #0C1315;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0C1315; --surface: #142022; --sunk: #0F1A1C; --ink: #E2EBE9; --muted: #8DA1A1;
+  --line: #233539; --pulse: #FF5C70; --calm: #4CBFAC; --warn: #E2A646; --on-accent: #0C1315;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+.wrap { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 700; text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: 30px; line-height: 1.1; }
+h2 { font-size: 19px; }
+h3 { font-size: 15px; font-weight: 500; }
+p { margin: 0; }
+.eyebrow { font-family: var(--f-data); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+header { display: flex; flex-direction: column; gap: 8px; }
+.lead { color: var(--muted); max-width: 60ch; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.small { font-size: 14px; color: var(--muted); }
+.num { font-family: var(--f-data); font-variant-numeric: tabular-nums; }
+
+/* scope */
+.scope { position: relative; background: var(--sunk); border-radius: 10px; overflow: hidden; height: 150px; }
+.scope canvas { display: block; width: 100%; height: 100%; }
+.scope-status { position: absolute; left: 12px; top: 10px; font-family: var(--f-data); font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.dot.on { background: var(--pulse); animation: beat 1s infinite; }
+@keyframes beat { 0%,100% { transform: scale(1); } 15% { transform: scale(1.6); } }
+@media (prefers-reduced-motion: reduce) { .dot.on { animation: none; } }
+
+.readouts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.readout { display: flex; flex-direction: column; gap: 2px; }
+.lbl { font-size: 12px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+.big { font-family: var(--f-data); font-weight: 600; font-size: 28px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.unit { font-size: 12px; color: var(--muted); }
+.progress { height: 4px; background: var(--sunk); border-radius: 2px; overflow: hidden; }
+.progress > div { height: 100%; width: 0; background: var(--pulse); transition: width .3s linear; }
+.hint { font-size: 14px; color: var(--muted); min-height: 1.5em; }
+.hint.alert { color: var(--warn); }
+
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 2px; align-self: flex-start; }
+.seg button { border: 0; background: none; color: var(--muted); font: 500 14px var(--f-body); padding: 5px 12px; border-radius: 999px; cursor: pointer; }
+.seg button[aria-checked="true"] { background: var(--ink); color: var(--bg); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 600 15px var(--f-body); padding: 12px 16px; border-radius: 10px; cursor: pointer; text-align: center; }
+.btn.primary { background: var(--pulse); border-color: var(--pulse); color: var(--on-accent); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn:focus-visible, .seg button:focus-visible, .chip:focus-visible, summary:focus-visible, textarea:focus-visible { outline: 2px solid var(--calm); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+details { border-top: 1px solid var(--line); padding-top: 12px; }
+summary { cursor: pointer; font-weight: 500; }
+details ol, details ul { margin: 10px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
+
+/* result */
+.result-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.pill { font-family: var(--f-data); font-size: 12px; padding: 3px 10px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+.pill.good { color: var(--calm); } .pill.fair { color: var(--warn); } .pill.poor { color: var(--pulse); } .pill.example { color: var(--muted); }
+.hero-metric { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.hero-metric .v { font-family: var(--f-display); font-size: 54px; line-height: 1; color: var(--calm); font-variant-numeric: tabular-nums; }
+.metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; border-top: 1px solid var(--line); padding-top: 12px; }
+.metrics .big { font-size: 20px; }
+@media (max-width: 420px) { .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.chart { background: var(--sunk); border-radius: 10px; height: 110px; position: relative; }
+.chart canvas { display: block; width: 100%; height: 100%; }
+.chart-cap { font-size: 12px; color: var(--muted); margin-top: -8px; }
+.verdict { font-size: 15px; padding: 12px 14px; background: var(--sunk); border-radius: 10px; }
+
+.levels { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 6px 10px; font: 14px var(--f-body); cursor: pointer; display: inline-flex; gap: 6px; align-items: baseline; }
+.chip .num { font-size: 12px; color: var(--muted); }
+.chip[aria-pressed="true"] { background: var(--calm); border-color: var(--calm); color: var(--on-accent); }
+.chip[aria-pressed="true"] .num { color: var(--on-accent); }
+.chip:disabled { opacity: .5; cursor: default; }
+textarea { width: 100%; min-height: 64px; resize: vertical; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); font: 15px var(--f-body); padding: 10px 12px; }
+
+/* diary */
+.trend { background: var(--sunk); border-radius: 10px; }
+.trend svg { display: block; width: 100%; height: 150px; }
+.hist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.hist li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+.hist .when { font-size: 14px; min-width: 0; }
+.hist .when small { display: block; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+.hist .vals { font-family: var(--f-data); font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; }
+.del { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 18px; padding: 4px 6px; border-radius: 6px; }
+.empty { color: var(--muted); font-size: 15px; padding: 8px 0; }
+.about { display: flex; flex-direction: column; gap: 10px; font-size: 15px; color: var(--muted); }
+.about h2 { color: var(--ink); }
+.about ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+video.src { position: absolute; width: 2px; height: 2px; opacity: 0; pointer-events: none; }
+</style>
+
+<main class="wrap">
+  <header>
+    <p class="eyebrow">Прототип · фотоплетизмография камерой</p>
+    <h1>Пульсограф</h1>
+    <p class="lead">Закройте пальцем камеру и вспышку телефона. Камера видит, как с каждым ударом сердца меняется цвет кожи, и по этому сигналу считает пульс, вариабельность ритма (HRV) и частоту дыхания.</p>
+  </header>
+
+  <section class="card" aria-labelledby="m-title">
+    <h2 id="m-title" class="sr">Замер</h2>
+    <div class="scope">
+      <canvas id="wave" aria-label="Пульсовая волна в реальном времени"></canvas>
+      <div class="scope-status"><span class="dot" id="dot"></span><span id="status">Готов к замеру</span></div>
+    </div>
+    <div class="readouts">
+      <div class="readout"><span class="lbl">Пульс</span><span class="big" id="liveBpm">--</span><span class="unit">уд/мин</span></div>
+      <div class="readout"><span class="lbl">Время</span><span class="big" id="timer">0</span><span class="unit" id="timerUnit">из 60 с</span></div>
+      <div class="readout"><span class="lbl">Сигнал</span><span class="big" id="sig">—</span><span class="unit">палец / свет</span></div>
+    </div>
+    <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+    <p class="hint" id="hint">Сядьте, расслабьтесь и не разговаривайте. Лучше всего мерить утром, сразу после пробуждения.</p>
+
+    <div class="seg" role="radiogroup" aria-label="Длительность замера">
+      <button role="radio" aria-checked="false" data-dur="30">30 с</button>
+      <button role="radio" aria-checked="true" data-dur="60">60 с</button>
+      <button role="radio" aria-checked="false" data-dur="120">2 мин</button>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="liveBtn">Начать замер</button>
+      <label class="btn" id="videoLbl" for="videoInput">Снять видео пальца</label>
+      <input type="file" id="videoInput" accept="video/*" capture="environment" class="sr">
+      <button class="btn" id="stopBtn" hidden>Остановить</button>
+    </div>
+    <p class="small" id="modeNote">«Начать замер» включает камеру и фонарик прямо на странице. Если браузер не даёт камеру, снимите видео пальца обычной камерой телефона, страница разберёт его так же.</p>
+
+    <details>
+      <summary>Как мерить правильно</summary>
+      <ol>
+        <li>Подушечкой указательного пальца закройте основную камеру и вспышку одновременно. Прижмите плотно, но без давления: сильный нажим пережимает капилляры и сигнал пропадает.</li>
+        <li>Положите руку с телефоном на стол или колено. Любое движение портит интервалы между ударами.</li>
+        <li>Дышите спокойно и не говорите. Первые 2 секунды камера подстраивает экспозицию, они не учитываются.</li>
+        <li>Для видео: в режиме видео включите вспышку («всегда вкл.»), снимайте 60–70 секунд, потом выберите ролик.</li>
+        <li>Чтобы сравнивать дни между собой, мерьте в одно время и в одной позе, лучше утром лёжа или сидя.</li>
+      </ol>
+    </details>
+  </section>
+
+  <section class="card" id="result" aria-labelledby="r-title">
+    <div class="result-head">
+      <h2 id="r-title">Результат</h2>
+      <span class="pill example" id="resBadge">Пример</span>
+    </div>
+    <div>
+      <span class="lbl">Вариабельность, RMSSD</span>
+      <div class="hero-metric"><span class="v" id="rRmssd">48</span><span class="unit">мс</span><span class="small" id="rIndex">индекс 77</span></div>
+    </div>
+    <div class="metrics">
+      <div class="readout"><span class="lbl">Пульс</span><span class="big" id="rHr">62</span><span class="unit">уд/мин</span></div>
+      <div class="readout"><span class="lbl">SDNN</span><span class="big" id="rSdnn">55</span><span class="unit">мс</span></div>
+      <div class="readout"><span class="lbl">Дыхание</span><span class="big" id="rResp">11</span><span class="unit">вдохов/мин</span></div>
+      <div class="readout"><span class="lbl">Качество</span><span class="big" id="rQ">94%</span><span class="unit" id="rBeats">61 удар</span></div>
+    </div>
+    <div class="chart"><canvas id="ppgChart" aria-label="Пульсовая волна с отмеченными ударами"></canvas></div>
+    <p class="chart-cap">Пульсовая волна, последние 10 секунд. Точки отмечают найденные удары.</p>
+    <div class="chart"><canvas id="tachoChart" aria-label="Интервалы между ударами"></canvas></div>
+    <p class="chart-cap">Интервалы между ударами, мс. Волна на графике — это дыхание: на вдохе сердце ускоряется, на выдохе замедляется. Серые точки отброшены как помехи.</p>
+    <p class="verdict" id="verdict">Это пример. Сделайте свой замер, и здесь появится разбор вашего результата.</p>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <h3>Как вы себя ощущаете сейчас?</h3>
+      <p class="small">Самооценка по шкале Хокинса. Телефон её не измеряет: это ваше субъективное ощущение. Его стоит записывать рядом с замером, чтобы со временем увидеть, совпадает ли оно с тем, что показывает тело.</p>
+      <div class="levels" id="levels"></div>
+      <label class="sr" for="note">Заметка</label>
+      <textarea id="note" placeholder="Заметка: как спали, тренировка, кофе, медитация, задержки дыхания…"></textarea>
+      <div class="row">
+        <button class="btn primary" id="saveBtn" disabled>Сохранить в дневник</button>
+        <span class="small" id="saveMsg">Сначала сделайте замер.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="d-title">
+    <div class="result-head"><h2 id="d-title">Дневник</h2><span class="small" id="storeNote">только в этом браузере</span></div>
+    <div class="trend" id="trendBox"><svg id="trend" viewBox="0 0 520 150" preserveAspectRatio="none" aria-label="RMSSD по дням"></svg></div>
+    <p class="small" id="baseline">После трёх хороших замеров появится ваша личная норма: серая полоса на графике.</p>
+    <p class="small" id="corr"></p>
+    <ul class="hist" id="hist"></ul>
+  </section>
+
+  <section class="about" aria-labelledby="a-title">
+    <h2 id="a-title">Что здесь измеряется, а что нет</h2>
+    <ul>
+      <li><b>Пульс и интервалы между ударами</b> снимаются камерой по изменению цвета пальца. Точность интервалов ограничена частотой кадров (обычно 30 в секунду), поэтому значения HRV примерные, но для сравнения себя с собой день ко дню их хватает.</li>
+      <li><b>RMSSD</b> показывает, насколько активна парасимпатическая система, «тормоз» организма. Выше обычного для вас: хорошее восстановление. Ниже: стресс, недосып, болезнь, тяжёлая тренировка, алкоголь.</li>
+      <li><b>Частота дыхания</b> оценивается по тому, как ритм сердца колеблется вместе с дыханием. Если дышать очень неровно, оценка не показывается.</li>
+      <li><b>Шкала Хокинса</b> здесь только самооценка. Ни телефон, ни другой прибор не измеряет «уровень вибраций»; приложение честно хранит ваше ощущение рядом с телесными цифрами.</li>
+      <li>Это не медицинский прибор. При перебоях в сердце, боли в груди или обмороках нужен врач и ЭКГ.</li>
+    </ul>
+    <p>Дальше по плану: голос (тон, дрожание, темп речи через микрофон), дыхание по звуку и тесты с задержкой дыхания.</p>
+  </section>
+
+  <video id="video" class="src" playsinline muted></video>
+  <canvas id="grab" width="40" height="30" hidden></canvas>
+</main>
+
+<script>
+/* ===================== ANALYSIS (pure functions) ===================== */
+const HRV = (() => {
+  function resample(samples, key, fs) {
+    const t0 = samples[0].t, t1 = samples[samples.length - 1].t;
+    const n = Math.max(2, Math.floor((t1 - t0) * fs) + 1);
+    const out = new Float64Array(n);
+    let j = 0;
+    for (let i = 0; i < n; i++) {
+      const t = t0 + i / fs;
+      while (j < samples.length - 2 && samples[j + 1].t < t) j++;
+      const a = samples[j], b = samples[j + 1] || a;
+      const u = b.t > a.t ? Math.min(1, Math.max(0, (t - a.t) / (b.t - a.t))) : 0;
+      out[i] = a[key] + (b[key] - a[key]) * u;
+    }
+    return out;
+  }
+  function movingAvg(x, w) {
+    const n = x.length, p = new Float64Array(n + 1), y = new Float64Array(n);
+    for (let i = 0; i < n; i++) p[i + 1] = p[i] + x[i];
+    const h = Math.floor(w / 2);
+    for (let i = 0; i < n; i++) { const a = Math.max(0, i - h), b = Math.min(n, i + h + 1); y[i] = (p[b] - p[a]) / (b - a); }
+    return y;
+  }
+  function biquad(type, f, fs) {
+    const w = 2 * Math.PI * f / fs, c = Math.cos(w), s = Math.sin(w), al = s / (2 * Math.SQRT1_2);
+    let b0, b1, b2;
+    if (type === "lp") { b0 = (1 - c) / 2; b1 = 1 - c; b2 = (1 - c) / 2; }
+    else { b0 = (1 + c) / 2; b1 = -(1 + c); b2 = (1 + c) / 2; }
+    const a0 = 1 + al;
+    return [b0 / a0, b1 / a0, b2 / a0, (-2 * c) / a0, (1 - al) / a0];
+  }
+  function runBQ(x, k) {
+    const y = new Float64Array(x.length);
+    let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+    for (let i = 0; i < x.length; i++) {
+      const v = k[0] * x[i] + k[1] * x1 + k[2] * x2 - k[3] * y1 - k[4] * y2;
+      x2 = x1; x1 = x[i]; y2 = y1; y1 = v; y[i] = v;
+    }
+    return y;
+  }
+  function filtfilt(x, ks, pad) {
+    const n = x.length; pad = Math.min(pad, n - 1);
+    const ext = new Float64Array(n + 2 * pad);
+    for (let i = 0; i < pad; i++) { ext[i] = 2 * x[0] - x[pad - i]; ext[n + pad + i] = 2 * x[n - 1] - x[n - 2 - i]; }
+    ext.set(x, pad);
+    let y = ext;
+    for (const k of ks) y = runBQ(y, k);
+    y.reverse();
+    for (const k of ks) y = runBQ(y, k);
+    y.reverse();
+    return y.slice(pad, pad + n);
+  }
+  // power spectrum on a frequency grid
+  function spectrum(x, fs, fmin, fmax, step) {
+    const out = [];
+    for (let f = fmin; f <= fmax + 1e-9; f += step) {
+      const w = 2 * Math.PI * f / fs;
+      let re = 0, im = 0;
+      const cw = Math.cos(w), sw = Math.sin(w);
+      let c = 1, s = 0;
+      for (let i = 0; i < x.length; i++) {
+        re += x[i] * c; im += x[i] * s;
+        const nc = c * cw - s * sw; s = s * cw + c * sw; c = nc;
+      }
+      out.push({ f, p: re * re + im * im });
+    }
+    return out;
+  }
+  function bandpass(raw, fs) {
+    const det = movingAvg(raw, Math.round(fs * 2));
+    const x = new Float64Array(raw.length);
+    for (let i = 0; i < raw.length; i++) x[i] = -(raw[i] - det[i]); // brightness falls when blood volume rises
+    return filtfilt(x, [biquad("hp", 0.5, fs), biquad("lp", 4, fs)], Math.round(fs * 1.5));
+  }
+  function hrPeak(y, fs) {
+    const sp = spectrum(y, fs, 0.5, 4.5, 0.01);
+    let best = null, total = 0;
+    for (const b of sp) { total += b.p; if (b.f >= 0.65 && b.f <= 3.5 && (!best || b.p > best.p)) best = b; }
+    let near = 0;
+    for (const b of sp) if (Math.abs(b.f - best.f) <= 0.12 || Math.abs(b.f - 2 * best.f) <= 0.12) near += b.p;
+    return { f0: best.f, snr: total > 0 ? near / total : 0 };
+  }
+  function median(a) { const s = [...a].sort((p, q) => p - q); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }
+  function findPeaks(y, fs, f0) {
+    const T = fs / f0, minDist = Math.max(fs * 0.28, 0.5 * T);
+    const cand = [];
+    for (let i = 1; i < y.length - 1; i++) if (y[i] > y[i - 1] && y[i] >= y[i + 1] && y[i] > 0) cand.push(i);
+    cand.sort((a, b) => y[b] - y[a]);
+    const acc = [];
+    for (const c of cand) if (!acc.some(a => Math.abs(a - c) < minDist)) acc.push(c);
+    acc.sort((a, b) => a - b);
+    if (!acc.length) return [];
+    const med = median(acc.map(i => y[i]));
+    const peaks = acc.filter(i => y[i] >= 0.3 * med);
+    return refineByTemplate(y, fs, T, peaks);
+  }
+  // Beat timing by cross-correlation with the person's average pulse shape:
+  // it uses the whole pulse instead of one noisy top sample, which cuts timing jitter several times.
+  function refineByTemplate(y, fs, T, peaks) {
+    const pre = Math.round(0.4 * T), post = Math.round(0.25 * T), L = pre + post + 1;
+    const maxLag = Math.max(2, Math.round(0.15 * T));
+    const inside = i => i - pre - maxLag - 1 >= 0 && i + post + maxLag + 1 < y.length;
+    const use = peaks.filter(inside);
+    if (use.length < 4) return peaks.filter(i => i > 0 && i < y.length - 1).map(i => ({ i, t: i / fs, h: y[i] }));
+    let pos = use.map(i => i);
+    for (let pass = 0; pass < 2; pass++) {
+      const tpl = new Float64Array(L);
+      for (const p of pos) { const c = Math.round(p); for (let k = 0; k < L; k++) tpl[k] += y[c - pre + k]; }
+      let tm = 0; for (let k = 0; k < L; k++) tm += tpl[k]; tm /= L;
+      for (let k = 0; k < L; k++) tpl[k] = (tpl[k] - tm) / pos.length;
+      pos = use.map(p0 => {
+        const xc = lag => { let s = 0; const st = p0 - pre + lag; for (let k = 0; k < L; k++) s += tpl[k] * y[st + k]; return s; };
+        let best = 0, bv = -Infinity;
+        for (let lag = -maxLag; lag <= maxLag; lag++) { const v = xc(lag); if (v > bv) { bv = v; best = lag; } }
+        let d = 0;
+        if (Math.abs(best) < maxLag) { const a = xc(best - 1), c = xc(best + 1), den = a - 2 * bv + c; d = den !== 0 ? Math.max(-0.5, Math.min(0.5, 0.5 * (a - c) / den)) : 0; }
+        return p0 + best + d;
+      });
+      // keep the integer anchors for the next pass
+      if (pass === 0) for (let k = 0; k < use.length; k++) use[k] = Math.round(pos[k]);
+    }
+    // shape similarity of every beat to the template (Pearson r): a noise / motion detector
+    const tpl = new Float64Array(L);
+    for (const p of pos) { const c = Math.round(p); for (let k = 0; k < L; k++) tpl[k] += y[c - pre + k]; }
+    let tm = 0; for (let k = 0; k < L; k++) tm += tpl[k]; tm /= L;
+    let tss = 0; for (let k = 0; k < L; k++) { tpl[k] -= tm; tss += tpl[k] * tpl[k]; }
+    return use.map((i, k) => {
+      const c = Math.round(pos[k]), st = c - pre;
+      let m = 0; for (let j = 0; j < L; j++) m += y[st + j]; m /= L;
+      let sxy = 0, sxx = 0;
+      for (let j = 0; j < L; j++) { const v = y[st + j] - m; sxy += v * tpl[j]; sxx += v * v; }
+      return { i, t: pos[k] / fs, h: y[i], c: sxx > 0 && tss > 0 ? sxy / Math.sqrt(sxx * tss) : 0 };
+    });
+  }
+  function respiration(beats, ibis, valid) {
+    // interpolate the clean RR series at 4 Hz, look for the breathing rhythm in it
+    const pts = [];
+    for (let k = 0; k < ibis.length; k++) if (valid[k]) pts.push({ t: beats[k + 1].t, r: ibis[k] });
+    if (pts.length < 20) return null;
+    const dur = pts[pts.length - 1].t - pts[0].t;
+    if (dur < 40) return null;
+    const fs = 4, x = resample(pts, "r", fs);
+    const m = x.reduce((s, v) => s + v, 0) / x.length;
+    for (let i = 0; i < x.length; i++) x[i] -= m;
+    const sp = spectrum(x, fs, 0.07, 0.5, 0.005);
+    let best = sp[0], sum = 0;
+    for (const b of sp) { sum += b.p; if (b.p > best.p) best = b; }
+    const prominence = best.p / (sum / sp.length);
+    if (prominence < 3.5) return null;
+    return { rpm: best.f * 60, prominence };
+  }
+  /** samples: [{t (s), r, g}] → metrics */
+  function analyze(samples, opts = {}) {
+    if (!samples || samples.length < 30) return null;
+    const dur = samples[samples.length - 1].t - samples[0].t;
+    if (dur < 5) return null;
+    const fs = 60;
+    const chans = ["r", "g"].map(key => {
+      const y = bandpass(resample(samples, key, fs), fs);
+      return { key, y, ...hrPeak(y, fs) };
+    });
+    const ch = chans[0].snr >= chans[1].snr ? chans[0] : chans[1];
+    const beats = findPeaks(ch.y, fs, ch.f0);
+    const ibis = [];
+    for (let k = 1; k < beats.length; k++) ibis.push((beats[k].t - beats[k - 1].t) * 1000);
+    const valid = ibis.map((v, k) => v >= 300 && v <= 2000 && (beats[k].c ?? 1) >= 0.6 && (beats[k + 1].c ?? 1) >= 0.6);
+    const shape = beats.length ? median(beats.map(b => b.c ?? 0)) : 0;
+    const okRange = valid.slice();
+    for (let k = 0; k < ibis.length; k++) {
+      if (!okRange[k]) continue;
+      const nb = [];
+      for (let j = Math.max(0, k - 4); j <= Math.min(ibis.length - 1, k + 4); j++) if (j !== k && okRange[j]) nb.push(ibis[j]);
+      if (nb.length >= 2) { const m = median(nb); if (Math.abs(ibis[k] - m) > 0.25 * m) valid[k] = false; }
+    }
+    const good = ibis.filter((_, k) => valid[k]);
+    const diffs = [];
+    for (let k = 0; k + 1 < ibis.length; k++) if (valid[k] && valid[k + 1]) diffs.push(ibis[k + 1] - ibis[k]);
+    const mean = good.length ? good.reduce((s, v) => s + v, 0) / good.length : NaN;
+    const sdnn = good.length > 1 ? Math.sqrt(good.reduce((s, v) => s + (v - mean) ** 2, 0) / (good.length - 1)) : NaN;
+    const rmssd = diffs.length ? Math.sqrt(diffs.reduce((s, d) => s + d * d, 0) / diffs.length) : NaN;
+    const pnn50 = diffs.length ? diffs.filter(d => Math.abs(d) > 50).length / diffs.length : NaN;
+    const quality = ibis.length ? good.length / ibis.length : 0;
+    let grade = "poor";
+    if (quality >= 0.85 && diffs.length >= 15 && shape >= 0.9) grade = "good";
+    else if (quality >= 0.65 && diffs.length >= 8 && shape >= 0.75) grade = "fair";
+    const resp = opts.skipResp || grade !== "good" ? null : respiration(beats, ibis, valid);
+    return {
+      dur, hr: good.length ? 60000 / mean : ch.f0 * 60, hrSpectral: ch.f0 * 60, rmssd, sdnn, pnn50,
+      quality, grade, shape, snr: ch.snr, channel: ch.key, beats, ibis, valid, nValid: good.length,
+      resp: resp ? resp.rpm : null, fs, y: ch.y
+    };
+  }
+  return { analyze };
+})();
+if (typeof module !== "undefined") module.exports = HRV;
+</script>
+
+<script>
+/* ===================== APP ===================== */
+(() => {
+const $ = id => document.getElementById(id);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const LEVELS = [
+  [20, "Стыд"], [30, "Вина"], [50, "Апатия"], [75, "Горе"], [100, "Страх"], [125, "Желание"], [150, "Гнев"],
+  [175, "Гордость"], [200, "Смелость"], [250, "Нейтральность"], [310, "Готовность"], [350, "Принятие"],
+  [400, "Разум"], [500, "Любовь"], [540, "Радость"], [600, "Покой"], [700, "Просветление"]
+];
+const WARMUP = 2;
+
+let duration = 60;
+let session = null;
+let current = null;      // last analysis result (real)
+let selectedLevel = null;
+let stream = null, wakeLock = null, frameHandle = null;
+
+/* ---------- storage: account (db) with browser fallback ---------- */
+const store = {
+  mode: "local", items: [], col: null,
+  loadLocal() { try { this.items = JSON.parse(localStorage.getItem("pulsograf.v1") || "[]"); } catch { this.items = []; } },
+  saveLocal() { try { localStorage.setItem("pulsograf.v1", JSON.stringify(this.items)); return true; } catch { return false; } },
+  async init() {
+    this.loadLocal(); renderDiary();
+    try {
+      if (!window.claude || !window.claude.use) return;
+      const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+      const uid = user ? await user.id() : null;
+      if (!db || !uid) return;
+      this.col = db.collection("data/users/" + uid);
+      this.mode = "cloud"; renderDiary();
+      const timer = setTimeout(() => { $("storeNote").textContent = "аккаунт пока не отвечает"; }, 10000);
+      this.col.onSnapshot(snap => {
+        if (!snap.metadata.fromCache) { clearTimeout(timer); }
+        this.items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderDiary();
+      }, () => { clearTimeout(timer); this.col = null; this.mode = "local"; this.loadLocal(); renderDiary(); });
+    } catch { /* stay local */ }
+  },
+  async add(item) {
+    if (this.mode === "cloud" && this.col) { await this.col.doc(item.id).set(item); return; }
+    this.items.push(item); if (!this.saveLocal()) throw new Error("storage"); renderDiary();
+  },
+  async remove(id) {
+    if (this.mode === "cloud" && this.col) { await this.col.doc(id).delete(); return; }
+    this.items = this.items.filter(i => i.id !== id); this.saveLocal(); renderDiary();
+  }
+};
+
+/* ---------- canvas helpers ---------- */
+function fitCanvas(c) {
+  const r = c.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+  const w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
+  if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+  const ctx = c.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, w: r.width, h: r.height };
+}
+function grid(ctx, w, h) {
+  ctx.strokeStyle = css("--line"); ctx.lineWidth = 1; ctx.globalAlpha = 0.6;
+  for (let x = 0; x < w; x += w / 12) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+  for (let y = h / 4; y < h; y += h / 4) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+  ctx.globalAlpha = 1;
+}
+function drawLive() {
+  const { ctx, w, h } = fitCanvas($("wave"));
+  ctx.clearRect(0, 0, w, h); grid(ctx, w, h);
+  if (!session || session.samples.length < 10) return;
+  const s = session.samples, tEnd = s[s.length - 1].t, win = 6;
+  const key = session.liveKey;
+  const pts = [];
+  for (let i = s.length - 1; i >= 0 && s[i].t >= tEnd - win - 1.5; i--) pts.push(s[i]);
+  pts.reverse();
+  // remove slow drift with a 1.5 s running mean, invert so beats point up
+  const vals = pts.map((p, i) => {
+    let sum = 0, n = 0;
+    for (let j = i; j >= 0 && pts[i].t - pts[j].t < 1.5; j--) { sum += pts[j][key]; n++; }
+    return -(p[key] - sum / n);
+  });
+  const vis = pts.map((p, i) => ({ t: p.t, v: vals[i] })).filter(p => p.t >= tEnd - win);
+  if (vis.length < 2) return;
+  let lo = Infinity, hi = -Infinity;
+  for (const p of vis) { lo = Math.min(lo, p.v); hi = Math.max(hi, p.v); }
+  const span = Math.max(hi - lo, 0.3);
+  ctx.strokeStyle = css("--pulse"); ctx.lineWidth = 2; ctx.lineJoin = "round";
+  ctx.beginPath();
+  vis.forEach((p, i) => {
+    const x = w - (tEnd - p.t) / win * w, y = h - 14 - (p.v - lo) / span * (h - 40);
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  });
+  ctx.stroke();
+}
+function drawPPG(res) {
+  const { ctx, w, h } = fitCanvas($("ppgChart"));
+  ctx.clearRect(0, 0, w, h); grid(ctx, w, h);
+  const y = res.y, fs = res.fs, n = y.length, win = Math.min(10, n / fs);
+  const i0 = Math.max(0, n - Math.round(win * fs));
+  let lo = Infinity, hi = -Infinity;
+  for (let i = i0; i < n; i++) { lo = Math.min(lo, y[i]); hi = Math.max(hi, y[i]); }
+  const span = hi - lo || 1;
+  const X = i => (i - i0) / (n - 1 - i0) * w, Y = v => h - 10 - (v - lo) / span * (h - 20);
+  ctx.strokeStyle = css("--pulse"); ctx.lineWidth = 1.6; ctx.beginPath();
+  for (let i = i0; i < n; i++) i === i0 ? ctx.moveTo(X(i), Y(y[i])) : ctx.lineTo(X(i), Y(y[i]));
+  ctx.stroke();
+  ctx.fillStyle = css("--ink");
+  for (const b of res.beats) if (b.i >= i0) { ctx.beginPath(); ctx.arc(X(b.i), Y(b.h), 3, 0, Math.PI * 2); ctx.fill(); }
+}
+function drawTacho(res) {
+  const { ctx, w, h } = fitCanvas($("tachoChart"));
+  ctx.clearRect(0, 0, w, h); grid(ctx, w, h);
+  const ib = res.ibis; if (ib.length < 2) return;
+  const good = ib.filter((_, k) => res.valid[k]);
+  const lo = Math.min(...good) - 40, hi = Math.max(...good) + 40;
+  const X = k => 8 + k / (ib.length - 1) * (w - 16), Y = v => h - 8 - (Math.min(hi, Math.max(lo, v)) - lo) / (hi - lo) * (h - 26);
+  ctx.strokeStyle = css("--calm"); ctx.lineWidth = 1.6; ctx.beginPath();
+  let started = false;
+  ib.forEach((v, k) => { if (!res.valid[k]) { started = false; return; } started ? ctx.lineTo(X(k), Y(v)) : ctx.moveTo(X(k), Y(v)); started = true; });
+  ctx.stroke();
+  ib.forEach((v, k) => { ctx.fillStyle = res.valid[k] ? css("--calm") : css("--muted"); ctx.beginPath(); ctx.arc(X(k), Y(v), res.valid[k] ? 2 : 3, 0, Math.PI * 2); ctx.fill(); });
+  ctx.fillStyle = css("--muted"); ctx.font = "11px " + css("--f-data");
+  ctx.fillText(Math.round(hi - 40) + " мс", 8, 13);
+}
+
+/* ---------- frame reading ---------- */
+const grab = $("grab"), gctx = grab.getContext("2d", { willReadFrequently: true });
+function readFrame(video) {
+  const vw = video.videoWidth, vh = video.videoHeight;
+  if (!vw || !vh) return null;
+  const sw = vw * 0.6, sh = vh * 0.6;
+  gctx.drawImage(video, (vw - sw) / 2, (vh - sh) / 2, sw, sh, 0, 0, grab.width, grab.height);
+  const d = gctx.getImageData(0, 0, grab.width, grab.height).data;
+  let r = 0, g = 0, b = 0, r2 = 0;
+  const n = d.length / 4;
+  for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; r2 += d[i] * d[i]; }
+  r /= n; g /= n; b /= n;
+  const rsd = Math.sqrt(Math.max(0, r2 / n - r * r));
+  return { r, g, b, rsd };
+}
+function isFinger(f) { return f.r > 35 && f.r > 1.35 * f.g && f.r > 1.35 * f.b && f.rsd < 0.3 * f.r + 12; }
+
+/* ---------- session ---------- */
+function newSession(mode, target) {
+  return { mode, target, samples: [], startT: null, lostSince: null, lastLive: 0, liveKey: "r", done: false };
+}
+function pushFrame(t, f) {
+  const s = session; if (!s || s.done) return;
+  const finger = isFinger(f);
+  $("sig").textContent = !finger ? "нет" : f.r > 248 ? "ярко" : f.r < 70 ? "темно" : "ок";
+  if (!finger) {
+    if (s.lostSince === null) s.lostSince = t;
+    if (t - s.lostSince > 1 && (s.samples.length || s.startT !== null)) {
+      s.samples = []; s.startT = null;
+      setHint("Палец не закрывает камеру. Приложите его к объективу и вспышке, отсчёт начнётся заново.", true);
+    } else if (!s.samples.length) setHint("Закройте пальцем камеру и вспышку.", true);
+    setStatus("Ищу палец", false);
+    return;
+  }
+  s.lostSince = null;
+  if (s.startT === null) s.startT = t;
+  if (t - s.startT < WARMUP) { setStatus("Подстройка камеры", true); setHint("Не двигайтесь, идёт подстройка экспозиции.", false); return; }
+  s.liveKey = f.r > 245 ? "g" : "r";
+  s.samples.push({ t, r: f.r, g: f.g });
+  const el = t - s.samples[0].t;
+  setStatus("Записываю сигнал", true);
+  setHint("Дышите спокойно, не двигайтесь.", false);
+  $("timer").textContent = Math.floor(el);
+  $("bar").style.width = Math.min(100, el / s.target * 100) + "%";
+  if (el - s.lastLive >= 1 && el >= 6) {
+    s.lastLive = el;
+    const tail = s.samples.filter(p => p.t >= t - 10);
+    const r = HRV.analyze(tail, { skipResp: true });
+    if (r && r.quality >= 0.6 && r.shape >= 0.75) $("liveBpm").textContent = Math.round(r.hr);
+    else $("liveBpm").textContent = "--";
+  }
+  if (el >= s.target) finish();
+}
+function setStatus(txt, on) { $("status").textContent = txt; $("dot").classList.toggle("on", !!on); }
+function setHint(txt, alert) { const h = $("hint"); h.textContent = txt; h.classList.toggle("alert", !!alert); }
+
+function uiRunning(on) {
+  $("liveBtn").hidden = on; $("videoLbl").hidden = on; $("stopBtn").hidden = !on;
+  document.querySelectorAll(".seg button").forEach(b => b.disabled = on);
+}
+let liveRaf = null;
+function liveLoop() { drawLive(); liveRaf = session && !session.done ? requestAnimationFrame(liveLoop) : null; }
+
+async function startLive() {
+  const video = $("video");
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return liveUnavailable();
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: "environment" }, width: { ideal: 320 }, height: { ideal: 240 }, frameRate: { ideal: 30 } } });
+  } catch (e) { return liveUnavailable(e); }
+  const track = stream.getVideoTracks()[0];
+  let torch = false;
+  try {
+    const caps = track.getCapabilities ? track.getCapabilities() : {};
+    if (caps.torch) { await track.applyConstraints({ advanced: [{ torch: true }] }); torch = true; }
+  } catch { }
+  video.srcObject = stream; video.muted = true;
+  try { await video.play(); } catch { }
+  try { wakeLock = await navigator.wakeLock?.request("screen"); } catch { }
+  session = newSession("live", duration);
+  $("timerUnit").textContent = "из " + duration + " с";
+  uiRunning(true);
+  setHint(torch ? "Фонарик включён. Закройте пальцем камеру и вспышку." : "Фонарик включить не удалось. Включите его вручную или мерьте у яркой лампы.", !torch);
+  liveLoop();
+  const useRVFC = "requestVideoFrameCallback" in HTMLVideoElement.prototype;
+  const tick = (now, meta) => {
+    if (!session || session.done) return;
+    const t = (meta && meta.mediaTime) ? meta.mediaTime : performance.now() / 1000;
+    const f = readFrame(video); if (f) pushFrame(t, f);
+    frameHandle = useRVFC ? video.requestVideoFrameCallback(tick) : requestAnimationFrame(n => tick(n));
+  };
+  frameHandle = useRVFC ? video.requestVideoFrameCallback(tick) : requestAnimationFrame(n => tick(n));
+}
+function liveUnavailable() {
+  $("modeNote").textContent = "Здесь браузер не дал доступ к камере. Нажмите «Снять видео пальца»: откроется обычная камера телефона, а страница разберёт ролик.";
+  $("modeNote").classList.add("hint", "alert");
+  setHint("Живой замер недоступен в этом окне. Используйте видео.", true);
+}
+
+async function startVideo(file) {
+  const video = $("video");
+  video.srcObject = null;
+  const url = URL.createObjectURL(file);
+  video.src = url; video.muted = true; video.playbackRate = 1;
+  await new Promise((res, rej) => { video.onloadedmetadata = res; video.onerror = () => rej(new Error("decode")); }).catch(() => null);
+  if (!video.videoWidth) { setHint("Не удалось открыть видео. Попробуйте снять заново в обычном режиме видео.", true); URL.revokeObjectURL(url); return; }
+  const total = isFinite(video.duration) ? video.duration : 180;
+  session = newSession("video", Math.max(10, Math.min(180, total - WARMUP - 0.3)));
+  session.url = url;
+  $("timerUnit").textContent = "из " + Math.round(session.target) + " с видео";
+  uiRunning(true); setStatus("Разбираю видео", true);
+  liveLoop();
+  try { wakeLock = await navigator.wakeLock?.request("screen"); } catch { }
+  if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) {
+    const tick = (now, meta) => {
+      if (!session || session.done) return;
+      const f = readFrame(video); if (f) pushFrame(meta.mediaTime, f);
+      if (!session.done) frameHandle = video.requestVideoFrameCallback(tick);
+    };
+    frameHandle = video.requestVideoFrameCallback(tick);
+    video.onended = () => { if (session && !session.done) finish(); };
+    try { await video.play(); } catch { setHint("Браузер не запустил видео. Нажмите «Снять видео пальца» ещё раз.", true); }
+  } else {
+    // fallback: step through the video at 30 fps
+    for (let t = 0; t < total && session && !session.done; t += 1 / 30) {
+      video.currentTime = t;
+      await new Promise(r => { video.onseeked = r; });
+      const f = readFrame(video); if (f) pushFrame(t, f);
+    }
+    if (session && !session.done) finish();
+  }
+}
+
+function stopSources() {
+  const video = $("video");
+  try { video.pause(); } catch { }
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  video.srcObject = null;
+  if (session && session.url) { URL.revokeObjectURL(session.url); video.removeAttribute("src"); video.load(); }
+  try { wakeLock && wakeLock.release(); } catch { } wakeLock = null;
+}
+function finish(cancel) {
+  if (!session || session.done) return;
+  session.done = true;
+  const s = session;
+  stopSources(); uiRunning(false);
+  setStatus("Готов к замеру", false);
+  const span = s.samples.length ? s.samples[s.samples.length - 1].t - s.samples[0].t : 0;
+  if (span < 20) {
+    setHint(cancel ? "Замер остановлен." : "Слишком короткий чистый участок сигнала (меньше 20 с). Попробуйте ещё раз, держа палец неподвижно.", !cancel);
+    $("bar").style.width = "0"; return;
+  }
+  const res = HRV.analyze(s.samples);
+  if (!res) { setHint("Не удалось найти пульс в сигнале. Попробуйте ещё раз.", true); return; }
+  res.mode = s.mode; res.at = Date.now();
+  current = res;
+  setHint(res.grade === "poor" ? "Сигнал получился шумным, результат ненадёжен." : "Готово. Результат ниже.", res.grade === "poor");
+  $("bar").style.width = "100%";
+  showResult(res, false);
+  $("result").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+}
+
+/* ---------- result ---------- */
+const plural = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 10 || h >= 20) ? b : c; };
+function goodItems(excludeAt) { return store.items.filter(i => i.grade !== "poor" && i.rmssd > 0 && i.at !== excludeAt).sort((a, b) => a.at - b.at); }
+function baselineOf(items) {
+  const last = items.slice(-14);
+  if (last.length < 3) return null;
+  const ln = last.map(i => Math.log(i.rmssd));
+  const m = ln.reduce((s, v) => s + v, 0) / ln.length;
+  const sd = Math.sqrt(ln.reduce((s, v) => s + (v - m) ** 2, 0) / (ln.length - 1));
+  return { m, sd: Math.max(sd, 0.06), n: last.length };
+}
+function verdictFor(res) {
+  if (res.grade === "poor") return `Сигнал слабый: помехой признано ${Math.round((1 - res.quality) * 100)}% ударов, поэтому HRV ненадёжна. Прижмите палец плотнее, но без давления, держите руку на опоре и повторите.`;
+  const base = baselineOf(goodItems(res.at));
+  const ln = Math.log(res.rmssd);
+  if (base) {
+    const lo = Math.exp(base.m - base.sd), hi = Math.exp(base.m + base.sd);
+    const range = `ваша норма ${Math.round(lo)}–${Math.round(hi)} мс по ${base.n} замерам`;
+    if (ln < base.m - base.sd) return `Ниже вашей обычной вариабельности (${range}). Организм сейчас под нагрузкой: так бывает после недосыпа, стресса, тяжёлой тренировки, алкоголя или в начале болезни. Хороший день для лёгкой нагрузки.`;
+    if (ln > base.m + base.sd) return `Выше вашей нормы (${range}). Обычно это признак хорошего восстановления. Если при этом пульс заметно выше обычного, а самочувствие плохое, это может быть реакция на перегрузку.`;
+    return `В пределах вашей нормы (${range}). Состояние восстановления обычное для вас.`;
+  }
+  const need = 3 - goodItems(res.at).length;
+  const lvl = res.rmssd < 20 ? "низкая" : res.rmssd < 50 ? "средняя" : "высокая";
+  return `Вариабельность ${lvl} для взрослого человека в покое (типично 20–80 мс, с возрастом ниже). Сравнивать себя с другими почти бесполезно: важна динамика. Ещё ${need} ${plural(need, "хороший замер", "хороших замера", "хороших замеров")} в одно и то же время, и появится ваша личная норма.`;
+}
+function showResult(res, isExample) {
+  const g = { good: "хороший сигнал", fair: "средний сигнал", poor: "шумный сигнал" };
+  const badge = $("resBadge");
+  badge.className = "pill " + (isExample ? "example" : res.grade);
+  badge.textContent = isExample ? "Пример" : g[res.grade];
+  const f = v => isFinite(v) ? Math.round(v) : "—";
+  $("rRmssd").textContent = f(res.rmssd);
+  $("rIndex").textContent = isFinite(res.rmssd) ? "индекс " + Math.round(Math.log(res.rmssd) * 20) + " (ln RMSSD × 20)" : "";
+  $("rHr").textContent = f(res.hr);
+  $("rSdnn").textContent = f(res.sdnn);
+  $("rResp").textContent = res.resp ? res.resp.toFixed(0) : "—";
+  $("rQ").textContent = Math.round(res.quality * 100) + "%";
+  const nb = res.beats.length;
+  $("rBeats").textContent = nb + " " + plural(nb, "удар", "удара", "ударов");
+  drawPPG(res); drawTacho(res);
+  $("verdict").textContent = isExample ? "Это пример с синтетическим сигналом. Сделайте свой замер, и здесь появится разбор вашего результата." : verdictFor(res);
+  const can = !isExample;
+  $("saveBtn").disabled = !can;
+  $("saveMsg").textContent = can ? "" : "Сначала сделайте замер.";
+  document.querySelectorAll(".chip").forEach(c => c.disabled = !can);
+}
+
+/* ---------- Hawkins chips ---------- */
+function buildLevels() {
+  const box = $("levels");
+  LEVELS.forEach(([v, name]) => {
+    const b = document.createElement("button");
+    b.className = "chip"; b.type = "button"; b.setAttribute("aria-pressed", "false"); b.disabled = true;
+    b.innerHTML = `<span></span><span class="num">${v}</span>`; b.firstChild.textContent = name;
+    b.onclick = () => {
+      selectedLevel = selectedLevel === v ? null : v;
+      box.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", String(c === b && selectedLevel === v)));
+    };
+    box.appendChild(b);
+  });
+}
+
+async function save() {
+  if (!current) return;
+  const btn = $("saveBtn"); btn.disabled = true; $("saveMsg").textContent = "Сохраняю…";
+  const lvl = LEVELS.find(l => l[0] === selectedLevel);
+  const item = {
+    id: "m" + current.at, at: current.at, hr: +current.hr.toFixed(1), rmssd: +current.rmssd.toFixed(1),
+    sdnn: +current.sdnn.toFixed(1), pnn50: +current.pnn50.toFixed(3), resp: current.resp ? +current.resp.toFixed(1) : null,
+    quality: +current.quality.toFixed(3), grade: current.grade, dur: Math.round(current.dur), mode: current.mode,
+    level: lvl ? lvl[0] : null, levelName: lvl ? lvl[1] : null, note: $("note").value.trim().slice(0, 1000),
+    ibis: current.ibis.map((v, k) => current.valid[k] ? Math.round(v) : -Math.round(v))
+  };
+  try {
+    await store.add(item);
+    $("saveMsg").textContent = "Сохранено в дневник.";
+    current = null; selectedLevel = null; $("note").value = "";
+    document.querySelectorAll(".chip").forEach(c => { c.setAttribute("aria-pressed", "false"); c.disabled = true; });
+  } catch (e) {
+    btn.disabled = false;
+    $("saveMsg").textContent = e && e.code === "quota_exceeded" ? "Дневник переполнен: удалите старые записи." : "Не получилось сохранить. Попробуйте ещё раз.";
+  }
+}
+
+/* ---------- diary ---------- */
+function renderDiary() {
+  $("storeNote").textContent = store.mode === "cloud" ? "хранится в вашем аккаунте" : "только в этом браузере";
+  const items = [...store.items].sort((a, b) => b.at - a.at);
+  const ul = $("hist"); ul.textContent = "";
+  if (!items.length) {
+    const li = document.createElement("li"); li.className = "empty"; li.style.display = "block";
+    li.textContent = "Пока пусто. После замера нажмите «Сохранить в дневник», и запись появится здесь.";
+    ul.appendChild(li);
+  }
+  const fmt = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  for (const it of items) {
+    const li = document.createElement("li");
+    const when = document.createElement("div"); when.className = "when";
+    when.textContent = fmt.format(new Date(it.at));
+    const sm = document.createElement("small");
+    sm.textContent = [it.levelName ? `${it.levelName} (${it.level})` : null, it.grade === "poor" ? "шумный сигнал" : null, it.note || null].filter(Boolean).join(" · ") || "без самооценки";
+    when.appendChild(sm);
+    const vals = document.createElement("div"); vals.className = "vals";
+    vals.innerHTML = `<div></div><div class="small"></div>`;
+    vals.firstChild.textContent = `${Math.round(it.rmssd)} мс`;
+    vals.lastChild.textContent = `${Math.round(it.hr)} уд/мин`;
+    const del = document.createElement("button"); del.className = "del"; del.type = "button"; del.textContent = "×";
+    del.setAttribute("aria-label", "Удалить запись");
+    del.onclick = () => {
+      if (del.dataset.armed) { store.remove(it.id).catch(() => { }); return; }
+      del.dataset.armed = "1"; del.textContent = "Удалить?"; del.style.fontSize = "13px";
+      setTimeout(() => { del.dataset.armed = ""; del.textContent = "×"; del.style.fontSize = ""; }, 3000);
+    };
+    li.append(when, vals, del); ul.appendChild(li);
+  }
+  drawTrend(); renderCorr();
+}
+function drawTrend() {
+  const svg = $("trend"), W = 520, H = 150, P = 18;
+  const pts = goodItems().slice(-30);
+  const base = baselineOf(goodItems());
+  $("baseline").textContent = base
+    ? `Ваша норма RMSSD: ${Math.round(Math.exp(base.m - base.sd))}–${Math.round(Math.exp(base.m + base.sd))} мс (последние ${base.n} хороших замеров).`
+    : `После трёх хороших замеров появится ваша личная норма: полоса на графике.`;
+  if (pts.length < 2) {
+    svg.innerHTML = `<text x="${W / 2}" y="${H / 2 + 4}" text-anchor="middle" font-size="13" fill="var(--muted)" font-family="var(--f-body)">Здесь будет график HRV по дням</text>`;
+    return;
+  }
+  const vals = pts.map(p => p.rmssd);
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  if (base) { lo = Math.min(lo, Math.exp(base.m - base.sd)); hi = Math.max(hi, Math.exp(base.m + base.sd)); }
+  lo = Math.max(0, lo - 5); hi += 5;
+  const X = k => P + k / (pts.length - 1) * (W - 2 * P), Y = v => H - P - (v - lo) / (hi - lo) * (H - 2 * P);
+  let s = "";
+  if (base) {
+    const y1 = Y(Math.exp(base.m + base.sd)), y2 = Y(Math.exp(base.m - base.sd));
+    s += `<rect x="0" y="${y1}" width="${W}" height="${y2 - y1}" fill="var(--line)" opacity="0.7"/>`;
+  }
+  s += `<polyline fill="none" stroke="var(--calm)" stroke-width="2" vector-effect="non-scaling-stroke" points="${pts.map((p, k) => X(k) + "," + Y(p.rmssd)).join(" ")}"/>`;
+  pts.forEach((p, k) => { s += `<circle cx="${X(k)}" cy="${Y(p.rmssd)}" r="${k === pts.length - 1 ? 4.5 : 3}" fill="var(--calm)"/>`; });
+  s += `<text x="${P}" y="14" font-size="11" fill="var(--muted)" font-family="var(--f-data)">${Math.round(hi)} мс</text>`;
+  s += `<text x="${P}" y="${H - 4}" font-size="11" fill="var(--muted)" font-family="var(--f-data)">${Math.round(lo)} мс</text>`;
+  svg.innerHTML = s;
+}
+function renderCorr() {
+  const it = goodItems().filter(i => i.level);
+  if (it.length < 5) { $("corr").textContent = it.length ? `Самооценка есть у ${it.length} из 5 замеров, нужных для первой проверки связи с HRV.` : ""; return; }
+  const x = it.map(i => i.level), y = it.map(i => Math.log(i.rmssd));
+  const mx = x.reduce((a, b) => a + b) / x.length, my = y.reduce((a, b) => a + b) / y.length;
+  let sxy = 0, sxx = 0, syy = 0;
+  for (let k = 0; k < x.length; k++) { sxy += (x[k] - mx) * (y[k] - my); sxx += (x[k] - mx) ** 2; syy += (y[k] - my) ** 2; }
+  if (!sxx || !syy) { $("corr").textContent = "Самооценка пока одинаковая во всех замерах, связь посчитать нельзя."; return; }
+  const r = sxy / Math.sqrt(sxx * syy), a = Math.abs(r);
+  const str = a < 0.2 ? "связи практически нет" : a < 0.4 ? "слабая связь" : a < 0.6 ? "умеренная связь" : "сильная связь";
+  const dir = a < 0.2 ? "" : r > 0 ? ": когда вы оцениваете себя выше, HRV тоже выше" : ": когда вы оцениваете себя выше, HRV ниже";
+  $("corr").textContent = `Самооценка и HRV по ${it.length} замерам: r = ${r.toFixed(2)}, ${str}${dir}. ${it.length < 20 ? "Замеров пока мало, вывод предварительный." : ""}`;
+}
+
+/* ---------- example (synthetic, clearly marked) ---------- */
+function exampleResult() {
+  let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const beats = []; let t = 0.3;
+  while (t < 62) { beats.push(t); t += (0.97 + 0.07 * Math.sin(2 * Math.PI * t / 5.5) + (rnd() - 0.5) * 0.04); }
+  const samples = [];
+  for (let k = 0; k < 62 * 30; k++) {
+    const tt = k / 30; let bv = 0;
+    for (const b of beats) { const d = tt - b; if (d > -0.3 && d < 1) bv += Math.exp(-((d - 0.15) ** 2) / 0.008) + 0.3 * Math.exp(-((d - 0.45) ** 2) / 0.006); }
+    const r = 200 - 3 * bv + 2 * Math.sin(tt / 9) + (rnd() - 0.5) * 0.6;
+    samples.push({ t: tt, r, g: 60 - 0.8 * bv + (rnd() - 0.5) * 0.6 });
+  }
+  return HRV.analyze(samples);
+}
+
+/* ---------- wiring ---------- */
+document.querySelectorAll(".seg button").forEach(b => b.onclick = () => {
+  duration = +b.dataset.dur;
+  document.querySelectorAll(".seg button").forEach(x => x.setAttribute("aria-checked", String(x === b)));
+  $("timerUnit").textContent = "из " + duration + " с";
+});
+$("liveBtn").onclick = startLive;
+$("stopBtn").onclick = () => finish(true);
+$("videoInput").onchange = e => { const f = e.target.files[0]; e.target.value = ""; if (f) startVideo(f); };
+$("saveBtn").onclick = save;
+let lastShown = null;
+window.addEventListener("resize", () => { drawLive(); if (lastShown) { drawPPG(lastShown); drawTacho(lastShown); } drawTrend(); });
+const _show = showResult;
+showResult = (r, ex) => { lastShown = r; _show(r, ex); };
+
+buildLevels();
+drawLive();
+const ex = exampleResult();
+if (ex) showResult(ex, true);
+store.init();
+window.__pulsograf = { HRV, pushFrame, get session() { return session; }, get current() { return current; } };
+})();
+</script>
+</body></html>
