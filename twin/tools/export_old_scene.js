@@ -18,8 +18,29 @@ const WORK=path.resolve(process.argv[2]||'.');
  const fs0=require('fs');
  let h=fs0.readFileSync(path.join(__dirname,'..','..','index.html'),'utf8');
  h=h.replace('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>','<script src="three.min.js"></script><script src="GLTFExporter.js"></script>');
- h=h.replace("requestAnimationFrame(frameLoop);\n})();","requestAnimationFrame(frameLoop);\nObject.assign(window,{zonePads,yard,flowGroup,train,scene,renderer,buildings,INFO,PLAN,STEPS,ZSTEPS,labels,hits,WX,WZ,unSx,toPlan,X,Z,camT,camS,setTop,gvSet,anims,setRoofMode:m=>{roofMode=m;buildings.forEach(b=>b.open=false)}});\n})();");
+ h=h.replace("requestAnimationFrame(frameLoop);\n})();","requestAnimationFrame(frameLoop);\nObject.assign(window,{ofCeil,zonePads,yard,flowGroup,train,scene,renderer,buildings,INFO,PLAN,STEPS,ZSTEPS,labels,hits,WX,WZ,unSx,toPlan,X,Z,camT,camS,setTop,gvSet,anims,setRoofMode:m=>{roofMode=m;buildings.forEach(b=>b.open=false)}});\n})();");
  if(!h.includes('setRoofMode:'))throw new Error('index.html изменился: не нашлось места для вставки');
+ // Машины и прицепы: старая игра рисует их вместе со всем двором, двойник ставит их сам (Blender, по фото и twin/tools/vehicles.json).
+ // Здесь каждый готовый прицеп и каждая легковая только записываются (место, поворот, вид) и не рисуются; рамы и прицепы
+ // в работе (stage) остаются как были. Кары, ГАЗель, грузовики на маршрутах и поезд в старой игре ездят — в снимке их нет,
+ // у двойника свои кары из симуляции. Вызовы ГСЧ не меняются: обёртки зовут то же, что и раньше.
+ const VEH=`;const __V=[];window.__V=__V;
+function __vrec(kind,b,x,z,ry,o){const m=b.base.clone().multiply(b.mat(x,0,z,0,ry,0,1,1,1)),e=m.elements;
+ const L=(new Error().stack||'').split('\\n').map(s=>(s.match(/index_r\\.html:(\\d+)/)||[])[1]).filter(Boolean).map(Number).slice(2);
+ __V.push({kind,x:e[12],y:e[13],z:e[14],ry:Math.atan2(e[8],e[0]),lines:L,o:JSON.parse(JSON.stringify(o||{}))})}
+trailer=(T=>function(b,x,z,ry,o={}){if(o.stage)return T(b,x,z,ry,o);__vrec('trailer',b,x,z,ry,o)})(trailer);
+platN=(T=>function(b,x,z,ry){__vrec('plat',b,x,z,ry,{})})(platN);
+boatN=(T=>function(b,x,z,ry){__vrec('boat',b,x,z,ry,{})})(boatN);
+carE=(T=>function(b,x,z,ry,o){__vrec('car',b,x,z,ry,o)})(carE);
+pathMover=(T=>function(obj,...a){obj.userData.__mover=1;return T(obj,...a)})(pathMover);
+shuttle=(T=>function(obj,...a){obj.userData.__mover=1;return T(obj,...a)})(shuttle);
+`;
+ const A0='\nconst world=new Batch();\n';
+ if(h.split(A0).length!==2)throw new Error('index.html изменился: нет строки const world=new Batch()');
+ h=h.replace(A0,'\nconst world=new Batch();'+VEH.replace(/\n/g,'')+'\n');
+ const C0='const car=(b,x,z,ry,o)=>b.at(x,z,ry,()=>{';
+ if(h.split(C0).length!==2)throw new Error('index.html изменился: нет const car=');
+ h=h.replace(C0,'const car=(b,x,z,ry,o)=>__vrec("car",b,x,z,ry,o)||false&&b.at(x,z,ry,()=>{');
  fs0.writeFileSync(path.join(WORK,'index_r.html'),h);
 }
 const {chromium}=require('playwright');const fs=require('fs');
@@ -34,7 +55,7 @@ const {chromium}=require('playwright');const fs=require('fs');
  await p.waitForTimeout(3000);
  const meta=await p.evaluate(()=>{
   const OX=X(213),OZ=Z(205);
-  const visChain=o=>{for(let q=o;q;q=q.parent){if(q===flowGroup)return false;if(!q.visible&&!q.userData.__roof)return false}return true};
+  const visChain=o=>{for(let q=o;q;q=q.parent){if(q===flowGroup||q===train||q.userData.__mover)return false;if(!q.visible&&!q.userData.__roof)return false}return true};
   const tag=new Map();
   buildings.forEach(B=>{
     B.g.traverse(o=>{if(o.isMesh)tag.set(o,{b:B.cfg.id,part:'int'})});
@@ -42,6 +63,8 @@ const {chromium}=require('playwright');const fs=require('fs');
     mark(B.walls,'walls');mark(B.walls2,'walls2');mark(B.fl2,'fl2');mark(B.roofIn,'roofIn');mark(B.roof,'roof');
     [B.roof,B.roofIn].forEach(r=>{if(r){r.visible=true;r.userData.__roof=1;if(r.material){r.material.opacity=1;r.material.transparent=false}}});
   });
+  // потолки 2 этажа Офиса 1 в старой игре гаснут вместе с крышей (ofCeil) — в двойнике они часть крыши
+  ofCeil.forEach(m=>tag.set(m,{b:'b1o',part:'roofIn'}));
   zonePads.forEach(m=>tag.set(m,{b:'zone',part:m.userData.id||'pad'}));
   tag.set(yard,{b:'yard',part:'yard'});
   const zones=zonePads.map(m=>({id:m.userData.id,x:m.position.x-OX,z:m.position.z-OZ,w:m.scale.x,d:m.scale.z,color:'#'+m.material.color.getHexString()}));
@@ -64,7 +87,8 @@ const {chromium}=require('playwright');const fs=require('fs');
   window.__root=root;
   const L=labels.map(l=>({id:l.el.dataset.id||null,t:l.el.textContent,kind:l.kind,x:l.p?l.p.x-OX:null,y:l.p?l.p.y:null,z:l.p?l.p.z-OZ:null,b:l.b?l.b.cfg.id:null}));
   const B=buildings.map(B=>({id:B.cfg.id,name:B.cfg.name,locked:!!B.cfg.locked,r:[B.r.x1-OX,B.r.z1-OZ,B.r.x2-OX,B.r.z2-OZ],rooms:B.rooms.map(r=>({id:r.id,name:r.name,step:r.step||null,fl:r.fl||1,r:[r.R.x1-OX,r.R.z1-OZ,r.R.x2-OX,r.R.z2-OZ]}))}));
-  return {zones,count:root.children.length,labels:L,buildings:B,INFO,STEPS,ZSTEPS,workers,origin:[OX,OZ]};
+  const vehicles=window.__V.map(v=>({...v,x:+(v.x-OX).toFixed(3),y:+v.y.toFixed(3),z:+(v.z-OZ).toFixed(3),ry:+v.ry.toFixed(4)}));
+  return {zones,count:root.children.length,labels:L,buildings:B,INFO,STEPS,ZSTEPS,workers,vehicles,origin:[OX,OZ]};
  });
  console.log('meshes',meta.count,'labels',meta.labels.length,'workers',meta.workers.length);
  fs.writeFileSync(path.join(WORK,'meta.json'),JSON.stringify(meta));
