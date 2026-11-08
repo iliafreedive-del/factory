@@ -1,0 +1,6 @@
+# кэш импорта Godot — создаётся заново при открытии проекта
+godot/.godot/
+# сцена для Godot выгружается из blender/factory.blend за 3 секунды (blender/export_glb.py)
+godot/assets/factory.glb
+godot/assets/factory_Image_*
+blender/*.blend1
