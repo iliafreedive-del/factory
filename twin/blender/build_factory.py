@@ -12,6 +12,8 @@ x — вдоль склада комплектующих (азимут 75°), z 
 4. Запекает затенение углов (AO, Cycles) в цвет вершин.
 5. Сохраняет отдельный проект factory.blend и factory.glb для Godot (повторная выгрузка — export_glb.py).
 
+Машины и прицепы ставит vehicles.py по meta.json (рядом с old_scene.glb) и правкам по фото twin/tools/vehicles.json.
+
 Запуск: blender -b -P twin/blender/build_factory.py -- old_scene.glb factory.glb factory.blend
 """
 import bpy, sys, os, json, math
@@ -20,6 +22,11 @@ import numpy as np
 
 argv = sys.argv[sys.argv.index('--') + 1:]
 SRC, OUT_GLB, OUT_BLEND = argv[0], argv[1], argv[2]
+META = os.path.join(os.path.dirname(os.path.abspath(SRC)), 'meta.json')
+HERE = os.path.dirname(os.path.abspath(__file__))
+RULES = os.path.join(HERE, '..', 'tools', 'vehicles.json')
+sys.path.insert(0, HERE)
+import vehicles
 OUT_STATS = OUT_GLB.replace('.glb', '_classes.json')
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -35,7 +42,8 @@ ROOF_Z = {'b1', 'b1o', 'b1a', 'b2t', 'b2tn', 'b2k'}
 TILE = 60.0
 
 CLASSES = ['corr', 'corr_z', 'brick', 'panel', 'slab', 'asphalt', 'dirt', 'grass', 'line', 'terrain',
-           'floor', 'galv', 'rust', 'wood', 'metal', 'cloth', 'glass', 'keep', 'zone', 'zoneline']
+           'floor', 'galv', 'rust', 'wood', 'metal', 'cloth', 'glass', 'keep', 'zone', 'zoneline',
+           'paint', 'vglass', 'tyre']
 
 
 def make_class_mat(name):
@@ -46,7 +54,7 @@ def make_class_mat(name):
     ca = nt.nodes.new('ShaderNodeVertexColor')
     ca.layer_name = 'Color'
     nt.links.new(ca.outputs['Color'], bsdf.inputs['Base Color'])
-    rough = {'galv': 0.35, 'metal': 0.55, 'glass': 0.05, 'line': 0.6}.get(name, 0.85)
+    rough = {'galv': 0.35, 'metal': 0.55, 'glass': 0.05, 'line': 0.6, 'paint': 0.3, 'vglass': 0.05, 'tyre': 0.95}.get(name, 0.85)
     bsdf.inputs['Roughness'].default_value = rough
     bsdf.inputs['Metallic'].default_value = {'galv': 0.7, 'metal': 0.3, 'corr': 0.3, 'corr_z': 0.3}.get(name, 0.0)
     return m
@@ -300,6 +308,10 @@ for o in objs:
         key = '%s|%s' % (bid, part)
     groups.setdefault(key, []).append(o)
 
+# машины и прицепы по фото (vehicles.py): один объект, затенение углов — вместе со всем заводом
+veh, vrep = vehicles.build(META, RULES, CMAT)
+print('vehicles', vrep)
+groups['world|veh'] = [veh]
 print('classes', stats)
 for key, lst in groups.items():
     bpy.ops.object.select_all(action='DESELECT')
@@ -363,6 +375,11 @@ for o in meshes:
         me.color_attributes.remove(me.color_attributes['AO'])
     a = me.color_attributes.new('AO', 'FLOAT_COLOR', 'CORNER')
     me.color_attributes.active_color = a
+# плашки зон лежат на 3 см над землёй: при запекании они закрывали бы двор сверху и земля под ними выходила
+# почти чёрной (сверка 08.11: южный двор у фасада 6 ст1 был темнее фото втрое). Люди тоже не затеняют.
+skip = [o for o in scene.objects if o.type == 'MESH' and o.name.split('|')[0] in NO_AO]
+for o in skip:
+    o.hide_render = True
 bpy.ops.object.select_all(action='DESELECT')
 for o in meshes:
     o.select_set(True)
@@ -371,6 +388,8 @@ import time
 t0 = time.time()
 bpy.ops.object.bake(type='AO', target='VERTEX_COLORS')
 print('AO baked in %.0fs' % (time.time() - t0))
+for o in skip:
+    o.hide_render = False
 for o in meshes:
     me = o.data
     c = np.zeros(len(me.loops) * 4, np.float32)
@@ -383,6 +402,7 @@ for o in meshes:
     me.color_attributes['Color'].data.foreach_set('color', c.ravel())
     me.color_attributes.remove(me.color_attributes['AO'])
     me.color_attributes.active_color = me.color_attributes['Color']
+    me.color_attributes.render_color_index = list(me.color_attributes).index(me.color_attributes['Color'])
 
 # коллекции по смыслу — чтобы в Blender было удобно смотреть
 cols = {}
@@ -416,6 +436,6 @@ bpy.ops.export_scene.gltf(filepath=OUT_GLB, export_format='GLB', use_selection=F
                           export_vertex_color='ACTIVE', export_all_vertex_colors=False,
                           export_lights=False, export_cameras=False, export_extras=False,
                           export_yup=True, export_image_format='AUTO')
-json.dump({'classes': stats, 'objects': sorted(o.name for o in scene.objects if o.type == 'MESH')},
+json.dump({'classes': stats, 'vehicles': vrep, 'objects': sorted(o.name for o in scene.objects if o.type == 'MESH')},
           open(OUT_STATS, 'w'), ensure_ascii=False, indent=1)
 print('done', OUT_GLB, os.path.getsize(OUT_GLB))

@@ -56,6 +56,14 @@ var bcenter := {}         # здание -> центр прямоугольни�
 var roofs: Array = []     # MeshInstance3D крыш
 var roof_mode := 0        # 0 авто, 1 сняты, 2 на месте
 var roofs_shown := true
+var walls_of := {}        # здание -> стены 1 этажа (при снятых крышах срезаются по высоте, как в старой игре)
+var walls2_of := {}       # здание -> стены 2 этажа
+var fl2_of := {}          # здание -> 2 этаж (пол, мебель, люди)
+var cut_key := ""
+var floor1_b := ""        # здание, у которого сейчас показан 1 этаж (2 этаж спрятан)
+const WALL_CUT := 0.4     # сколько высоты стен оставить, когда крыши сняты
+const FLOOR1_CUT := 0.3   # стены 1 этажа, когда 2 этаж спрятан
+const FLOOR1_DIST := 80.0 # ближе — показать 1 этаж двухэтажного здания
 var labels_root: Node3D
 var label_items: Array = []   # {node, id, b}
 var people_node: Node3D
@@ -272,6 +280,12 @@ func _load_factory() -> void:
 				roofs.append(m)
 			if c is MeshInstance3D:
 				roofs.append(c)
+		for pr in [["walls", walls_of], ["walls2", walls2_of], ["fl2", fl2_of]]:
+			if part == pr[0]:
+				var dd: Dictionary = pr[1]
+				if not dd.has(bid):
+					dd[bid] = []
+				dd[bid].append(c)
 
 # ---------- подписи участков и мест ----------
 func _build_labels() -> void:
@@ -340,7 +354,11 @@ func _build_labels() -> void:
 				bnodes[bid].append(g)
 			parent = groups[bid]
 		parent.add_child(lab)
-		label_items.append({"node": lab, "id": String(d.id), "far": far})
+		var fl := 0
+		if bid != null and kind != "b":
+			# в двухэтажном здании подписи только текущего этажа (как в старой игре)
+			fl = 2 if float(d.y) > 4.0 else 1
+		label_items.append({"node": lab, "id": String(d.id), "far": far, "b": String(bid) if bid != null else "", "fl": fl, "kind": kind})
 
 # ---------- виды ----------
 func view_overview() -> void:
@@ -420,12 +438,78 @@ func _update_roofs(force := false) -> void:
 		else:
 			var d: float = cam_rig.dist
 			show = d > (165.0 if roofs_shown else 150.0)
+	_update_cut(show)
 	if show == roofs_shown and not force:
 		return
 	roofs_shown = show
 	for m in roofs:
 		# снятая крыша продолжает отбрасывать тень: внутри цеха остаётся полумрак, как на фото
 		(m as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if show else GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
+
+## Крыши сняты — стены срезаны по высоте, видно, что внутри. У двухэтажного здания (Офис 1) ближе 80 м
+## прячется 2 этаж и видно 1 этаж: «2 этаж · ближе — 1 этаж», как в старой игре.
+func _update_cut(roofs_on: bool) -> void:
+	var cut: bool = not roofs_on and cam_rig.mode != "walk"
+	var f1 := ""
+	if cut and cam_rig.dist < FLOOR1_DIST:
+		var tp := Vector2(cam_rig.tx, cam_rig.tz)
+		var best := 1e9
+		for bid in fl2_of:
+			var sh: Array = planner.bshift.get(bid, [0.0, 0.0, 0.0]) if planner else [0.0, 0.0, 0.0]
+			var c: Vector2 = bcenter[bid] + Vector2(sh[0], sh[1])
+			var d := c.distance_to(tp)
+			if d < 35.0 and d < best:
+				best = d
+				f1 = bid
+	var key := "%s|%s" % [cut, f1]
+	if key == cut_key:
+		return
+	cut_key = key
+	floor1_b = f1
+	for bid in walls_of:
+		var k := 1.0
+		if cut:
+			k = FLOOR1_CUT if bid == f1 else (1.0 if fl2_of.has(bid) else WALL_CUT)
+		for n in walls_of[bid]:
+			(n as Node3D).scale.y = k
+	for bid in walls2_of:
+		for n in walls2_of[bid]:
+			(n as Node3D).scale.y = WALL_CUT if cut else 1.0
+			(n as Node3D).visible = bid != f1
+	for bid in fl2_of:
+		for n in fl2_of[bid]:
+			(n as Node3D).visible = bid != f1
+	for it in label_items:
+		var bid: String = it.b
+		if bid == "" or not fl2_of.has(bid):
+			continue
+		var lab: Label3D = it.node
+		if it.kind == "f":
+			lab.visible = cut
+			lab.text = "1 этаж · дальше — 2 этаж" if bid == f1 else "2 этаж · ближе — 1 этаж"
+		elif int(it.fl) == 2:
+			lab.visible = bid != f1
+		elif int(it.fl) == 1:
+			lab.visible = bid == f1 or not cut
+
+## Ссылка в карточке: «Заглянуть внутрь» — камера подлетает к зданию, крыша снимается, у Офиса 1 виден 1 этаж
+func on_info_link(m: String) -> void:
+	if m.begins_with("in:"):
+		var bid := m.substr(3)
+		for b in data.buildings:
+			var d: Dictionary = b
+			if String(d.id) != bid:
+				continue
+			var r: Array = d.r
+			var sh: Array = planner.bshift.get(bid, [0.0, 0.0, 0.0])
+			var c: Vector2 = bcenter[bid] + Vector2(sh[0], sh[1])
+			var size := maxf(float(r[2]) - float(r[0]), float(r[3]) - float(r[1]))
+			var az: float = cam_rig.t.az if cam_rig.mode == "orbit" else 0.62
+			if cam_rig.mode == "walk":
+				cam_rig.mode = "orbit"
+			cam_rig.set_view(c.x, c.y, az, 0.95, clampf(size * 1.3, 30.0, 140.0))
+			ui.info_panel.visible = false
+			return
 
 func set_zones(on: bool) -> void:
 	Mats.set_zones_visible(on)
@@ -735,6 +819,8 @@ func _show_info_id(id: String, fallback: String, b: Dictionary) -> void:
 			body += "\n[color=#a8b0b8]Источник: %s[/color]" % _esc(String(b.src))
 	elif not b.is_empty():
 		body += "\n[color=#a8b0b8]%s[/color]" % _esc(String(b.name))
+	if not b.is_empty() and String(b.id) == id and not bool(b.get("locked", false)):
+		body += "\n\n[url=in:%s][color=#f5a54a]▸ Заглянуть внутрь[/color][/url]" % id
 	if body == "":
 		body = "Пока без описания."
 	ui.show_info(title, body)

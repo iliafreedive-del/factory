@@ -4,3 +4,4 @@ godot/.godot/
 godot/assets/factory.glb
 godot/assets/factory_Image_*
 blender/*.blend1
+blender/__pycache__/

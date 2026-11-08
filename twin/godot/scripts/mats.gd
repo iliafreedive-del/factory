@@ -49,11 +49,13 @@ static func get_mat(cls: String) -> Material:
 			m = _mk("panel_albedo", "panel_normal", "panel_rough", Vector3(6, 1.2, 6), 0.9)
 		"slab":
 			m = _mk("slab_albedo", "slab_normal", "slab_rough", Vector3(6, 2, 2), 0.88)
-			m.albedo_color = Color(0.95, 0.95, 0.95)
+			m.albedo_color = Color(1.22, 1.22, 1.2)
 		"floor":
 			m = _mk("slab_albedo", "", "slab_rough", Vector3(12, 4, 8), 0.7)
 		"asphalt":
 			m = _mk("asphalt_albedo", "asphalt_normal", "asphalt_rough", Vector3(4, 4, 4), 0.92)
+			# на фото 26.10 асфальт старый, светло-серый, местами белёсый (сверка 08.11: был вдвое темнее фото)
+			m.albedo_color = Color(1.5, 1.5, 1.48)
 		"dirt":
 			m = _mk("dirt_albedo", "dirt_normal", "", Vector3(4, 4, 4), 0.97)
 		"grass":
@@ -80,6 +82,17 @@ static func get_mat(cls: String) -> Material:
 			m = _mk("wood_albedo", "", "", Vector3(1, 1, 1), 0.85)
 		"cloth":
 			m = _mk("fabric_albedo", "", "", Vector3(0.5, 0.5, 0.5), 0.95)
+		"paint":
+			# краска легковых и фонари: гладкая, с бликом
+			m = _mk("", "", "", Vector3(1, 1, 1), 0.32, 0.25)
+			m.metallic_specular = 0.6
+		"vglass":
+			# стёкла легковых: тёмные, зеркальные (непрозрачные — салона внутри нет)
+			m = _mk("", "", "", Vector3(1, 1, 1), 0.06, 0.55)
+			m.metallic_specular = 0.9
+		"tyre":
+			m = _mk("", "", "", Vector3(1, 1, 1), 0.95)
+			m.albedo_color = Color(1, 1, 1)
 		_:
 			m = _mk("metal_albedo", "metal_normal", "metal_rough", Vector3(2, 2, 2), 0.6, 0.2, 0.5)
 	cache[cls] = m

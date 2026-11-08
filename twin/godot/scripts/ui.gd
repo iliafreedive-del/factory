@@ -212,6 +212,7 @@ func build(m: Node) -> void:
 	info_text.custom_minimum_size = Vector2(360, 0)
 	info_text.add_theme_font_size_override("normal_font_size", 14)
 	info_text.add_theme_font_size_override("bold_font_size", 14)
+	info_text.meta_clicked.connect(func(m): main.on_info_link(String(m)))
 	iv.add_child(info_text)
 	# ---------- подсказка ----------
 	hint = _lbl("", 13, Color(0.9, 0.9, 0.85))
